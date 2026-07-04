@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import ReceivingForm from './components/ReceivingForm';
+import MaintenanceForm from './components/MaintenanceForm';
 import MaintenanceReport from './components/MaintenanceReport';
 import AssetReport from './components/AssetReport';
 import AssetExport from './components/AssetExport';
@@ -156,6 +157,13 @@ export default function App() {
       
       {activeTab === 'receiving' && (
         <ReceivingForm
+          computers={computers}
+          users={users}
+        />
+      )}
+      
+      {activeTab === 'maintenance-form' && (
+        <MaintenanceForm
           computers={computers}
           users={users}
         />

@@ -363,7 +363,7 @@ export default function ReceivingForm({ computers, users }) {
               </div>
 
               {/* 1. Recipient Details Table */}
-              <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>1. ข้อมูลผู้รับมอบอุปกรณ์ (Recipient Details)</div>
+              <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>1. ข้อมูลผู้รับมอบ / ผู้ส่งคืน อุปกรณ์ (Equipment Recipient / Returner Detail)</div>
               <table style={{ width: '100%', marginBottom: '8px' }} className="doc-table">
                 <tbody>
                   <tr>
