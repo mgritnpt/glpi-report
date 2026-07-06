@@ -19,9 +19,10 @@ services:
       - NODE_ENV=${NODE_ENV}
     networks:
       - default
-      - glpi-target-network 
+      - glpi-target-network
+
 networks:
   default:
   glpi-target-network:
-    name: ${NETWORK_NAME}
-    external: true        
+    name: glpi-dev-network # 👈 พิมพ์ชื่อจริงลงไปตรง ๆ เลย ไม่ต้องใช้ตัวแปร ${NETWORK_NAME}
+    external: true     
