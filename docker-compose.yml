@@ -17,3 +17,11 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - NODE_ENV=${NODE_ENV}
+    networks:
+      - default
+      - glpi-target-network 
+networks:
+  default:
+  glpi-target-network:
+    name: ${NETWORK_NAME}
+    external: true        
