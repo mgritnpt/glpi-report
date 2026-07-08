@@ -20,6 +20,43 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
+app.get('/api/entities', async (req, res) => {
+  try {
+    const entities = await db.getEntities();
+    res.json(entities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน' });
+    }
+    const user = await db.authenticate(username, password);
+    const token = Buffer.from(JSON.stringify(user)).toString('base64');
+    res.json({ user, token });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+});
+
+app.get('/api/auth/status', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'ไม่ได้เข้าสู่ระบบ' });
+    }
+    const token = authHeader.split(' ')[1];
+    const user = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+    res.json({ user });
+  } catch (error) {
+    res.status(401).json({ error: 'เซสชันหมดอายุหรือผิดพลาด' });
+  }
+});
+
 app.get('/api/computers', async (req, res) => {
   try {
     const search = req.query.search || '';

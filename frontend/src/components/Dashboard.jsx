@@ -1,28 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Laptop, Wrench, CheckCircle, AlertTriangle, ArrowRight, ShieldCheck, Tag } from 'lucide-react';
 
-export default function Dashboard({ computers, tickets, setActiveTab }) {
+export default function Dashboard({ computers, tickets, entities = [], setActiveTab }) {
+  const [selectedEntityFilter, setSelectedEntityFilter] = useState('all');
+
+  // Filter computers and tickets based on entity selection
+  const filteredComputers = selectedEntityFilter === 'all'
+    ? computers
+    : computers.filter(c => c.entity_name === selectedEntityFilter || c.entities_id.toString() === selectedEntityFilter);
+
+  const filteredTickets = selectedEntityFilter === 'all'
+    ? tickets
+    : tickets.filter(t => t.entity_name === selectedEntityFilter || t.entities_id.toString() === selectedEntityFilter);
+
   // Statistics Calculations
-  const totalComputers = computers.length;
-  const activeComputers = computers.filter(c => c.state.includes('Active') || c.state.includes('ใช้งาน')).length;
-  const spareComputers = computers.filter(c => c.state.includes('Spare') || c.state.includes('สำรอง')).length;
-  const repairComputers = computers.filter(c => c.state.includes('Repair') || c.state.includes('ซ่อม')).length;
+  const totalComputers = filteredComputers.length;
+  const activeComputers = filteredComputers.filter(c => c.state.includes('Active') || c.state.includes('ใช้งาน')).length;
+  const spareComputers = filteredComputers.filter(c => c.state.includes('Spare') || c.state.includes('สำรอง')).length;
+  const repairComputers = filteredComputers.filter(c => c.state.includes('Repair') || c.state.includes('ซ่อม')).length;
   
-  const totalTickets = tickets.length;
-  const pendingTickets = tickets.filter(t => t.status <= 4).length; // New, Processing, Pending, Planned
-  const resolvedTickets = tickets.filter(t => t.status >= 5).length; // Solved, Closed
+  const totalTickets = filteredTickets.length;
+  const pendingTickets = filteredTickets.filter(t => t.status <= 4).length; // New, Processing, Pending, Planned
+  const resolvedTickets = filteredTickets.filter(t => t.status >= 5).length; // Solved, Closed
 
   const resolutionRate = totalTickets > 0 ? ((resolvedTickets / totalTickets) * 100).toFixed(0) : 0;
 
   // Group tickets by priority
-  const highPriorityTickets = tickets.filter(t => t.priority >= 4);
+  const highPriorityTickets = filteredTickets.filter(t => t.priority >= 4);
 
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.25rem' }}>ยินดีต้อนรับสู่ระบบรายงาน GLPI 11</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>สรุปภาพรวมสินทรัพย์คอมพิวเตอร์และสถิติงานซ่อมบำรุงในระบบของคุณ</p>
+      <div style={{ 
+        marginBottom: '2rem', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1rem'
+      }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.25rem' }}>ยินดีต้อนรับสู่ระบบรายงาน GLPI 11</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>สรุปภาพรวมสินทรัพย์คอมพิวเตอร์และสถิติงานซ่อมบำรุงในระบบของคุณ</p>
+        </div>
+
+        {/* Entity Selector Filter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>กรองข้อมูล Entity:</span>
+          <select
+            className="form-control"
+            value={selectedEntityFilter}
+            onChange={(e) => setSelectedEntityFilter(e.target.value)}
+            style={{ width: 'auto', minWidth: '180px', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
+          >
+            <option value="all">🌐 ทั้งหมด (All Entities)</option>
+            {entities.map(e => {
+              const cleanName = e.name.includes('>') ? e.name.split('>').pop().trim() : e.name;
+              return (
+                <option key={e.id} value={e.id.toString()}>{cleanName}</option>
+              );
+            })}
+          </select>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -170,7 +209,7 @@ export default function Dashboard({ computers, tickets, setActiveTab }) {
                 </tr>
               </thead>
               <tbody>
-                {tickets.slice(0, 4).map((ticket) => {
+                {filteredTickets.slice(0, 4).map((ticket) => {
                   let badgeClass = 'badge-muted';
                   if (ticket.status === 1) badgeClass = 'badge-primary'; // New
                   else if (ticket.status === 2 || ticket.status === 4) badgeClass = 'badge-warning'; // Processing / Planned

@@ -1,46 +1,118 @@
 import React, { useState, useEffect } from 'react';
-import { Printer, Info, Wrench, AlertTriangle } from 'lucide-react';
+import { Printer, Info, Wrench, Search, Filter } from 'lucide-react';
 
-export default function MaintenanceForm({ computers, users }) {
-  const [selectedCompId, setSelectedCompId] = useState('');
+export default function MaintenanceForm({ computers, users, entities = [] }) {
+  const [selectedCompIds, setSelectedCompIds] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
 
+  // Entity selection for Document Number
+  const entityOptions = entities.length > 0 ? entities : [
+    { id: 1, name: 'BPK' },
+    { id: 2, name: 'PPD' }
+  ];
+  const [selectedEntityId, setSelectedEntityId] = useState('');
+
   // Document details
-  const [documentNo, setDocumentNo] = useState(`INV-MTN-${new Date().getFullYear()}-${String(Math.floor(1000 + Math.random() * 9000))}`);
+  const [documentNo, setDocumentNo] = useState('');
   const [documentDate, setDocumentDate] = useState(new Date().toISOString().split('T')[0]);
-  const [expectedDate, setExpectedDate] = useState(
-    new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Default 3 days from now
-  );
 
-  const [selectedComputer, setSelectedComputer] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
+  // Filters for computers list
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterLocation, setFilterLocation] = useState('all');
+  const [filterEntity, setFilterEntity] = useState('all');
 
-  // Maintenance details
-  const [maintenanceType, setMaintenanceType] = useState('Preventive Maintenance (PM)');
-  const [urgency, setUrgency] = useState('ปกติ (Medium)');
-  const [symptoms, setSymptoms] = useState('ตรวจเช็กสภาพเครื่องตามรอบการซ่อมบำรุงประจำปี และทำความสะอาดฝุ่นภายใน');
-  
-  // Backup Device State
-  const [hasBackup, setHasBackup] = useState(false);
-  const [backupDetails, setBackupDetails] = useState('');
-
-  // Pre-maintenance Checklist
-  const [checklist, setChecklist] = useState({
-    powerOn: true,
-    screenNormal: true,
-    keyboardNormal: true,
-    portsNormal: true,
-    chargerNormal: true,
-    bodyNormal: true
-  });
-
-  // Action log details
-  const [actionLog, setActionLog] = useState('ดำเนินการเป่าฝุ่นขจัดสิ่งสกปรกภายในเครื่อง เปลี่ยนซิลิโคนระบายความร้อนใหม่ (Thermal Paste) และทดสอบความร้อน CPU ปกติ');
-  const [replacedParts, setReplacedParts] = useState('ไม่มีการเปลี่ยนอะไหล่');
-  const [maintenanceStatus, setMaintenanceStatus] = useState('ซ่อมบำรุงเสร็จสิ้น (Completed)');
+  // Unique list of locations and entities from computer assets for filtering
+  const locationsList = [...new Set(computers.map(c => c.location).filter(Boolean))].sort();
+  const entitiesList = [...new Set(computers.map(c => c.entity_name).filter(Boolean))].sort();
 
   // Local print datetime state
   const [printDateTime, setPrintDateTime] = useState('');
+
+  // Pre-maintenance Checklist State (Dynamic & Editable)
+  const [hardwareItems, setHardwareItems] = useState([
+    { id: 'powerOn', checked: true, text: 'เครื่องเปิดบูตระบบปฏิบัติการได้ปกติ (Power On & Boot)' },
+    { id: 'screenNormal', checked: true, text: 'จอแสดงผลทำงานปกติ ไม่แตก ไม่เป็นเส้น (Display Normal)' },
+    { id: 'keyboardNormal', checked: true, text: 'แป้นพิมพ์คีย์บอร์ด & ทัชแพดปกติ (Keyboard & Touchpad)' },
+    { id: 'portsNormal', checked: true, text: 'พอร์ตเชื่อมต่อภายนอกทำงานปกติ (External I/O Ports)' },
+    { id: 'chargerNormal', checked: true, text: 'สายชาร์จและอะแดปเตอร์จ่ายไฟปกติ (Power Adapter)' },
+    { id: 'bodyNormal', checked: true, text: 'โครงสร้างตัวเครื่องภายนอกปกติ ไม่มีรอยชำรุดแตกหัก (Body & Case)' }
+  ]);
+
+  const [softwareItems, setSoftwareItems] = useState([
+    { id: 'softwareAntivirus', checked: true, text: 'โปรแกรมป้องกันไวรัสทำงานปกติ (Antivirus Working)' },
+    { id: 'softwareOSUpdate', checked: true, text: 'อัปเดตความปลอดภัยระบบปฏิบัติการ (Windows Update)' },
+    { id: 'softwareFirewall', checked: true, text: 'เปิดใช้งานระบบความปลอดภัยไฟร์วอลล์ (Firewall Enabled)' },
+    { id: 'softwareCleanup', checked: true, text: 'ทำความสะอาดข้อมูลขยะและไฟล์ชั่วคราว (System Cleanup)' },
+    { id: 'softwareBrowser', checked: true, text: 'เว็บบราวเซอร์ปกติ ไม่มี Adware รบกวน (Web Browser Check)' },
+    { id: 'softwareLicense', checked: true, text: 'ลิขสิทธิ์ซอฟต์แวร์และระบบถูกต้อง (License Activation)' }
+  ]);
+
+  const handleHardwareCheckedChange = (index) => {
+    setHardwareItems(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], checked: !updated[index].checked };
+      return updated;
+    });
+  };
+
+  const handleHardwareTextChange = (index, newText) => {
+    setHardwareItems(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], text: newText };
+      return updated;
+    });
+  };
+
+  const handleSoftwareCheckedChange = (index) => {
+    setSoftwareItems(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], checked: !updated[index].checked };
+      return updated;
+    });
+  };
+
+  const handleSoftwareTextChange = (index, newText) => {
+    setSoftwareItems(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], text: newText };
+      return updated;
+    });
+  };
+
+  const getHardwareChecked = (id) => hardwareItems.find(item => item.id === id)?.checked;
+  const getHardwareText = (id) => hardwareItems.find(item => item.id === id)?.text;
+
+  const getSoftwareChecked = (id) => softwareItems.find(item => item.id === id)?.checked;
+  const getSoftwareText = (id) => softwareItems.find(item => item.id === id)?.text;
+
+  // Set default Entity ID
+  useEffect(() => {
+    if (entityOptions.length > 0 && !selectedEntityId) {
+      setSelectedEntityId(entityOptions[0].id.toString());
+    }
+  }, [entities]);
+
+  // Helper to extract clean Entity Prefix
+  const getEntityPrefix = (entityName) => {
+    if (!entityName) return 'BPK';
+    if (entityName.includes('>')) {
+      const parts = entityName.split('>');
+      return parts[parts.length - 1].trim().toUpperCase();
+    }
+    if (entityName.toLowerCase().includes('root')) return 'BPK'; // Default
+    return entityName.toUpperCase().replace(/\s+/g, '');
+  };
+
+  // Generate Document No prefix dynamically based on Entity and Planned Date
+  useEffect(() => {
+    if (selectedEntityId && documentDate) {
+      const entity = entityOptions.find(e => e.id.toString() === selectedEntityId.toString());
+      const prefix = entity ? getEntityPrefix(entity.name) : 'BPK';
+      const yy = documentDate.substring(2, 4);
+      const mm = documentDate.substring(5, 7);
+      setDocumentNo(`${prefix}-${yy}${mm}-XXXXX`);
+    }
+  }, [selectedEntityId, documentDate, entities]);
 
   // Dynamically update print datetime on render/print request
   useEffect(() => {
@@ -61,7 +133,7 @@ export default function MaintenanceForm({ computers, users }) {
   // Suppress browser default title in print header
   useEffect(() => {
     const handleBeforePrint = () => {
-      document.title = ""; // Temporarily clear document title
+      document.title = "";
     };
     const handleAfterPrint = () => {
       document.title = "GLPI 11 Report System";
@@ -74,90 +146,70 @@ export default function MaintenanceForm({ computers, users }) {
     };
   }, []);
 
-  // Sync computer and user objects when IDs change
-  useEffect(() => {
-    if (selectedCompId) {
-      fetch(`/api/computers/${selectedCompId}`)
-        .then(res => res.json())
-        .then(data => {
-          setSelectedComputer(data);
-          // Auto select the user linked to this computer asset
-          if (data && data.user_id) {
-            setSelectedUserId(data.user_id.toString());
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          const found = computers.find(c => c.id === parseInt(selectedCompId));
-          setSelectedComputer(found);
-          if (found && found.user_id) {
-            setSelectedUserId(found.user_id.toString());
-          }
-        });
-    } else {
-      setSelectedComputer(null);
-    }
-  }, [selectedCompId, computers]);
-
-  useEffect(() => {
-    if (selectedUserId) {
-      const found = users.find(u => u.id === parseInt(selectedUserId));
-      setSelectedUser(found);
-    } else {
-      setSelectedUser(null);
-    }
-  }, [selectedUserId, users]);
-
-  // Set default items on load
-  useEffect(() => {
-    if (computers.length > 0 && !selectedCompId) {
-      setSelectedCompId(computers[0].id.toString());
-    }
-  }, [computers]);
-
-  const handleChecklistChange = (key) => {
-    setChecklist(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
   const handlePrint = () => {
     window.print();
   };
+
+  const handleSelectComp = (id) => {
+    setSelectedCompIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  // Filter computers list dynamically based on filters
+  const filteredComputers = computers.filter(c => {
+    const searchMatch = !filterSearch || 
+      c.name.toLowerCase().includes(filterSearch.toLowerCase()) ||
+      c.serial.toLowerCase().includes(filterSearch.toLowerCase()) ||
+      (c.otherserial && c.otherserial.toLowerCase().includes(filterSearch.toLowerCase())) ||
+      (c.username && c.username.toLowerCase().includes(filterSearch.toLowerCase()));
+      
+    const locationMatch = filterLocation === 'all' || c.location === filterLocation;
+    
+    const entityMatch = filterEntity === 'all' || 
+      c.entity_name === filterEntity || 
+      c.entities_id.toString() === filterEntity;
+
+    return searchMatch && locationMatch && entityMatch;
+  });
+
+  const handleSelectAll = () => {
+    const filteredIds = filteredComputers.map(c => c.id.toString());
+    const allSelected = filteredIds.every(id => selectedCompIds.includes(id));
+    
+    if (allSelected) {
+      setSelectedCompIds(prev => prev.filter(id => !filteredIds.includes(id)));
+    } else {
+      setSelectedCompIds(prev => [...new Set([...prev, ...filteredIds])]);
+    }
+  };
+
+  // Get selected computers data
+  const selectedComputersData = computers.filter(c => selectedCompIds.includes(c.id.toString()));
 
   return (
     <div>
       {/* Header */}
       <div className="no-print" style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.25rem' }}>บันทึกการส่งซ่อมบำรุงคอมพิวเตอร์</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.25rem' }}>พิมพ์ใบบันทึกการซ่อมบำรุงคอมพิวเตอร์ (PM Checklist)</h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          จัดการรายละเอียดการเรียกเครื่องเข้ามาซ่อมบำรุง เช็กสภาพ และบันทึกประวัติการบำรุงรักษาในกระดาษ A4 หน้าหลัง (หน้าซ่อมบำรุงแยกเฉพาะ)
+          ค้นหาและเลือกเครื่องคอมพิวเตอร์ที่ต้องการ เพื่อสั่งพิมพ์ใบบันทึกการตรวจสอบสภาพ Preventive Maintenance สำหรับลงพื้นที่ตรวจสอบด้วยตนเอง
         </p>
       </div>
 
-      <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '1.1fr 2fr', gap: '1.5rem', alignItems: 'start' }}>
         
         {/* Left Side: Form Controls */}
         <div className="card no-print" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '1.25rem' }}>
           
           <div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem', marginBottom: '0.85rem', color: 'var(--primary)' }}>
-              🛠️ ข้อมูลบันทึกส่งซ่อมบำรุง (Maintenance Record)
+              🛠️ ข้อมูลบันทึกส่งซ่อมบำรุง (PM Config)
             </h3>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div className="form-group">
-                <label style={{ fontSize: '0.8rem' }}>เลขที่เอกสาร</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={documentNo} 
-                  onChange={(e) => setDocumentNo(e.target.value)} 
-                />
-              </div>
-              <div className="form-group">
-                <label style={{ fontSize: '0.8rem' }}>วันที่ส่งเครื่องซ่อม</label>
+                <label style={{ fontSize: '0.8rem' }}>วันที่วางแผน PM</label>
                 <input 
                   type="date" 
                   className="form-control" 
@@ -165,32 +217,170 @@ export default function MaintenanceForm({ computers, users }) {
                   onChange={(e) => setDocumentDate(e.target.value)} 
                 />
               </div>
+              <div className="form-group">
+                <label style={{ fontSize: '0.8rem' }}>เลือก Entity/สาขา</label>
+                <select
+                  className="form-control"
+                  value={selectedEntityId}
+                  onChange={(e) => setSelectedEntityId(e.target.value)}
+                >
+                  {entityOptions.map(e => (
+                    <option key={e.id} value={e.id}>{getEntityPrefix(e.name)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label style={{ fontSize: '0.8rem' }}>เลือกเครื่องคอมพิวเตอร์</label>
-              <select 
+              <label style={{ fontSize: '0.8rem' }}>รูปแบบเลขที่เอกสาร</label>
+              <input 
+                type="text" 
                 className="form-control" 
-                value={selectedCompId} 
-                onChange={(e) => setSelectedCompId(e.target.value)}
-              >
-                <option value="">-- เลือกเครื่องคอมพิวเตอร์ --</option>
-                {computers.map(c => (
-                  <option key={c.id} value={c.id}>
-                    [{c.otherserial || c.serial}] {c.manufacturer} {c.model} ({c.name})
-                  </option>
-                ))}
-              </select>
+                value={documentNo} 
+                readOnly
+                style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed', fontWeight: 600, color: 'var(--primary)' }}
+              />
+            </div>
+
+            {/* FILTERING COMPONENT PANEL */}
+            <div style={{ 
+              border: '1px solid var(--border)', 
+              borderRadius: 'var(--radius-sm)', 
+              padding: '0.75rem', 
+              backgroundColor: 'var(--bg-primary)', 
+              marginBottom: '0.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <Filter size={14} /> คัดกรองเครื่องคอมพิวเตอร์ที่ต้องการตรวจเช็ก
+              </span>
+              
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type="text"
+                  className="form-control"
+                  placeholder="ค้นหาตามชื่อ/ซีเรียล/ผู้ใช้..."
+                  value={filterSearch}
+                  onChange={e => setFilterSearch(e.target.value)}
+                  style={{ paddingLeft: '2rem', fontSize: '0.75rem', padding: '0.35rem 0.5rem 0.35rem 2rem' }}
+                />
+                <Search size={12} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <select 
+                    className="form-control"
+                    value={filterLocation}
+                    onChange={e => setFilterLocation(e.target.value)}
+                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', height: 'auto' }}
+                  >
+                    <option value="all">📍 ทุกสถานที่ (All Locations)</option>
+                    {locationsList.map(loc => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="form-group" style={{ margin: 0 }}>
+                  <select 
+                    className="form-control"
+                    value={filterEntity}
+                    onChange={e => setFilterEntity(e.target.value)}
+                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', height: 'auto' }}
+                  >
+                    <option value="all">🏢 ทุก Entity (All Entities)</option>
+                    {entitiesList.map(ent => (
+                      <option key={ent} value={ent}>{ent}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Multiselect List with Checkbox */}
+            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+              <label style={{ fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>เลือกคอมพิวเตอร์ที่ต้องการทำ PM ({selectedCompIds.length} เครื่อง)</span>
+                <button 
+                  type="button" 
+                  onClick={handleSelectAll}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--primary)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {filteredComputers.map(c => c.id.toString()).every(id => selectedCompIds.includes(id)) ? 'Deselect All' : 'Select All'}
+                </button>
+              </label>
+
+              <div style={{
+                maxHeight: '220px',
+                overflowY: 'auto',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.5rem',
+                backgroundColor: 'var(--bg-tertiary)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem'
+              }}>
+                {filteredComputers.length === 0 ? (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
+                    ไม่พบข้อมูลคอมพิวเตอร์ตามเงื่อนไขการค้นหา
+                  </div>
+                ) : (
+                  filteredComputers.map(c => {
+                    const isChecked = selectedCompIds.includes(c.id.toString());
+                    return (
+                      <label 
+                        key={c.id} 
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.5rem',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          padding: '0.35rem 0.5rem',
+                          borderRadius: '4px',
+                          backgroundColor: isChecked ? 'var(--primary-light)' : 'transparent',
+                          color: isChecked ? 'var(--primary)' : 'var(--text-secondary)',
+                          transition: 'var(--transition)'
+                        }}
+                      >
+                        <input 
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleSelectComp(c.id.toString())}
+                          style={{ marginTop: '2px' }}
+                        />
+                        <span style={{ fontWeight: isChecked ? 600 : 400 }}>
+                          {c.name} - {c.manufacturer} {c.model} 
+                          <span style={{ display: 'block', fontSize: '0.65rem', color: isChecked ? 'var(--primary)' : 'var(--text-muted)' }}>
+                            [รหัสทรัพย์สิน: {c.otherserial || c.serial || 'N/A'}]
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label style={{ fontSize: '0.8rem' }}>ผู้ใช้งาน/ผู้ส่งซ่อม (ผูกกับคอมพิวเตอร์)</label>
+              <label style={{ fontSize: '0.8rem' }}>ผู้ตรวจรับรองเครื่อง (ใช้กรณี Override พนักงานบางคน)</label>
               <select 
                 className="form-control" 
                 value={selectedUserId} 
                 onChange={(e) => setSelectedUserId(e.target.value)}
               >
-                <option value="">-- เลือกพนักงาน --</option>
+                <option value="">-- ดึงจากเจ้าของทรัพย์สินในระบบ GLPI โดยอัตโนมัติ --</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>
                     {u.name} ({u.department})
@@ -199,160 +389,79 @@ export default function MaintenanceForm({ computers, users }) {
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <div className="form-group">
-                <label style={{ fontSize: '0.8rem' }}>ประเภทงานซ่อม</label>
-                <select 
-                  className="form-control" 
-                  value={maintenanceType} 
-                  onChange={(e) => setMaintenanceType(e.target.value)}
-                  style={{ fontSize: '0.85rem' }}
-                >
-                  <option value="Preventive Maintenance (PM)">ตรวจเช็กสภาพ (PM)</option>
-                  <option value="Hardware Upgrade">อัปเกรดเครื่อง (RAM/SSD)</option>
-                  <option value="Software Repair">แก้ไขซอฟต์แวร์/OS</option>
-                  <option value="Hardware Repair">ซ่อมแซมฮาร์ดแวร์ชำรุด</option>
-                  <option value="อื่นๆ (ระบุในอาการ)">อื่นๆ</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label style={{ fontSize: '0.8rem' }}>ระดับความเร่งด่วน</label>
-                <select 
-                  className="form-control" 
-                  value={urgency} 
-                  onChange={(e) => setUrgency(e.target.value)}
-                  style={{ fontSize: '0.85rem' }}
-                >
-                  <option value="ต่ำ (Low)">ต่ำ (Low)</option>
-                  <option value="ปกติ (Medium)">ปกติ (Medium)</option>
-                  <option value="สูง (High)">สูง (High)</option>
-                  <option value="ด่วนที่สุด (Critical)">ด่วนที่สุด (Critical)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label style={{ fontSize: '0.8rem' }}>อาการชำรุดเบื้องต้น / เหตุผลที่เรียกซ่อม</label>
-              <textarea 
-                className="form-control" 
-                rows="2" 
-                style={{ resize: 'none', fontSize: '0.8rem' }}
-                value={symptoms}
-                onChange={(e) => setSymptoms(e.target.value)}
-              />
-            </div>
-
-            {/* Backup Device Fields */}
-            <div style={{ padding: '0.65rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', marginBottom: '0.75rem', backgroundColor: 'var(--bg-tertiary)' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
-                <input 
-                  type="checkbox" 
-                  checked={hasBackup} 
-                  onChange={(e) => setHasBackup(e.target.checked)} 
-                />
-                มีเครื่องสำรองให้ใช้งานระหว่างซ่อม (Backup Unit)
+            {/* Checklist Grid Split into Hardware and Software */}
+            <div className="form-group" style={{ marginBottom: '0.75rem', marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '0.85rem' }}>
+              <label style={{ fontSize: '0.825rem', marginBottom: '0.5rem', display: 'block', fontWeight: 700, color: 'var(--primary)' }}>
+                🔍 รายการตรวจเช็กสำหรับออกรายงาน (PM Items Checklist)
               </label>
-              {hasBackup && (
-                <div style={{ marginTop: '0.5rem' }}>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    placeholder="ระบุรหัสทรัพย์สิน / Hostname ของเครื่องสำรอง"
-                    value={backupDetails}
-                    onChange={(e) => setBackupDetails(e.target.value)}
-                    style={{ fontSize: '0.8rem', padding: '0.4rem 0.6rem' }}
-                  />
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                ติ๊กถูกหน้ารายการที่ต้องการให้แสดงบนเอกสารพิมพ์ และสามารถพิมพ์แก้ไขข้อความรายละเอียดที่จะแสดงได้ตามใจชอบ
+              </p>
+              
+              {/* Hardware checklist controls */}
+              <div style={{ marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.4rem' }}>🔌 ฮาร์ดแวร์และอุปกรณ์ภายนอก</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  {hardwareItems.map((item, index) => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={item.checked} 
+                        onChange={() => handleHardwareCheckedChange(index)} 
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <input 
+                        type="text" 
+                        className="form-control"
+                        value={item.text}
+                        onChange={(e) => handleHardwareTextChange(index, e.target.value)}
+                        style={{ 
+                          fontSize: '0.75rem', 
+                          padding: '0.2rem 0.5rem', 
+                          height: 'auto',
+                          border: item.checked ? '1px solid var(--border)' : '1px solid transparent',
+                          backgroundColor: item.checked ? 'var(--bg-primary)' : 'var(--bg-tertiary)',
+                          color: item.checked ? 'var(--text-primary)' : 'var(--text-muted)',
+                          textDecoration: item.checked ? 'none' : 'line-through'
+                        }}
+                        disabled={!item.checked}
+                      />
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-
-            {/* Checklist */}
-            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label style={{ fontSize: '0.8rem', marginBottom: '0.4rem', display: 'block', fontWeight: 600 }}>
-                🔍 สภาพตัวเครื่องก่อนการซ่อมบำรุง
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  <input type="checkbox" checked={checklist.powerOn} onChange={() => handleChecklistChange('powerOn')} />
-                  เปิดบูตเครื่องได้ปกติ
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  <input type="checkbox" checked={checklist.screenNormal} onChange={() => handleChecklistChange('screenNormal')} />
-                  จอแสดงผลปกติ (ไม่แตก)
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  <input type="checkbox" checked={checklist.keyboardNormal} onChange={() => handleChecklistChange('keyboardNormal')} />
-                  คีย์บอร์ด & ทัชแพดปกติ
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  <input type="checkbox" checked={checklist.portsNormal} onChange={() => handleChecklistChange('portsNormal')} />
-                  พอร์ตเชื่อมต่อปกติ
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  <input type="checkbox" checked={checklist.chargerNormal} onChange={() => handleChecklistChange('chargerNormal')} />
-                  สายชาร์จ/อะแดปเตอร์ปกติ
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  <input type="checkbox" checked={checklist.bodyNormal} onChange={() => handleChecklistChange('bodyNormal')} />
-                  บอดี้ภายนอกปกติไม่มีรอยแตก
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, borderBottom: '1px solid var(--border)', paddingBottom: '0.4rem', marginBottom: '0.85rem', color: 'var(--accent)' }}>
-              ⚙️ บันทึกการดำเนินการโดยช่างไอที (IT Action Log)
-            </h3>
-            
-            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label style={{ fontSize: '0.8rem' }}>บันทึกผลการดำเนินงานซ่อม / การแก้ไข</label>
-              <textarea 
-                className="form-control" 
-                rows="2" 
-                style={{ resize: 'none', fontSize: '0.8rem' }}
-                value={actionLog}
-                onChange={(e) => setActionLog(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label style={{ fontSize: '0.8rem' }}>อะไหล่หรือชิ้นส่วนที่เปลี่ยน (ถ้ามี)</label>
-              <input 
-                type="text" 
-                className="form-control" 
-                value={replacedParts} 
-                onChange={(e) => setReplacedParts(e.target.value)}
-                style={{ fontSize: '0.8rem' }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <div className="form-group">
-                <label style={{ fontSize: '0.8rem' }}>สถานะผลงานซ่อม</label>
-                <select 
-                  className="form-control" 
-                  value={maintenanceStatus} 
-                  onChange={(e) => setMaintenanceStatus(e.target.value)}
-                  style={{ fontSize: '0.85rem' }}
-                >
-                  <option value="ซ่อมบำรุงเสร็จสิ้น (Completed)">เสร็จสิ้น (Completed)</option>
-                  <option value="อยู่ระหว่างดำเนินการ / รออะไหล่ (In Progress)">อยู่ระหว่างดำเนินการ (In Progress)</option>
-                  <option value="ส่งเคลมศูนย์บริการภายนอก (Outsource Claim)">ส่งเคลมภายนอก (Outsource)</option>
-                  <option value="ชำรุดเกินซ่อม / จำหน่ายออก (Scrap)">จำหน่ายออก (Scrap)</option>
-                </select>
               </div>
 
-              <div className="form-group">
-                <label style={{ fontSize: '0.8rem' }}>วันที่คาดว่าจะแล้วเสร็จ</label>
-                <input 
-                  type="date" 
-                  className="form-control" 
-                  value={expectedDate} 
-                  onChange={(e) => setExpectedDate(e.target.value)} 
-                  style={{ fontSize: '0.85rem' }}
-                />
+              {/* Software checklist controls */}
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.4rem' }}>💾 ซอฟต์แวร์และระบบปฏิบัติการ</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  {softwareItems.map((item, index) => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={item.checked} 
+                        onChange={() => handleSoftwareCheckedChange(index)} 
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <input 
+                        type="text" 
+                        className="form-control"
+                        value={item.text}
+                        onChange={(e) => handleSoftwareTextChange(index, e.target.value)}
+                        style={{ 
+                          fontSize: '0.75rem', 
+                          padding: '0.2rem 0.5rem', 
+                          height: 'auto',
+                          border: item.checked ? '1px solid var(--border)' : '1px solid transparent',
+                          backgroundColor: item.checked ? 'var(--bg-primary)' : 'var(--bg-tertiary)',
+                          color: item.checked ? 'var(--text-primary)' : 'var(--text-muted)',
+                          textDecoration: item.checked ? 'none' : 'line-through'
+                        }}
+                        disabled={!item.checked}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -368,223 +477,313 @@ export default function MaintenanceForm({ computers, users }) {
             alignItems: 'flex-start'
           }}>
             <Info size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
-            <span>ใบงานนี้ออกแบบเพื่อปริ้นท์ประกบหน้าหลังกับใบส่งมอบทรัพย์สิน โดยช่างไอทีจะกรอกข้อมูลตรวจเช็กและประวัติซ่อมบำรุงสำหรับเก็บในประวัติของสินทรัพย์ไอที</span>
+            <span>ติ๊กเครื่องที่คุณต้องการจัดทำใบบันทึกการซ่อมบำรุง (PM Checklist) ด้านซ้าย จากนั้นกดสั่งพิมพ์เพื่อดาวน์โหลดเอกสารสำหรับนำไปตรวจสภาพคอมพิวเตอร์ทีละเครื่องได้เลยครับ</span>
           </div>
         </div>
 
         {/* Right Side: Document Preview & Action */}
         <div>
-          <div className="doc-preview-header no-print" style={{ marginBottom: '0.75rem' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>📄 บันทึกการส่งซ่อมบำรุง (Maintenance Record A4)</h3>
-            <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-              <Printer size={16} /> พิมพ์ใบซ่อมบำรุง / Save PDF
+          <div className="doc-preview-header no-print" style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>📄 บันทึกการส่งซ่อมบำรุง ({selectedCompIds.length} แผ่น)</h3>
+            <button 
+              onClick={handlePrint} 
+              disabled={selectedCompIds.length === 0}
+              className="btn btn-primary" 
+              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}
+            >
+              <Printer size={16} /> พิมพ์ใบบันทึก PM
             </button>
           </div>
 
-          {/* A4 sheet */}
-          <div className="doc-preview-outer">
-            <div className="printable-document" id="maintenance-form-print-area" style={{ fontSize: '10.5px', lineHeight: '1.35', fontFamily: "'Sarabun', sans-serif" }}>
-              
-              {/* Header Letterhead */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '6px', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {/* Square Box for Logo */}
-                  <div style={{ width: '45px', height: '45px', border: '1px dashed #cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
-                    <img 
-                      src="/logo.png" 
-                      alt="Logo" 
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentNode.innerHTML = '<span style="font-size: 8px; color: #94a3b8; text-align: center; font-weight: bold;">LOGO</span>';
-                      }}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
-                  </div>
-                  <div>
-                    <h2 style={{ fontSize: '13px', fontWeight: 700, margin: 0 }}>บริษัท นิปปอนเพนต์ (ประเทศไทย) จํากัด</h2>
-                    <p style={{ fontSize: '9.5px', color: '#475569', margin: '2px 0 0 0' }}>ฝ่ายเทคโนโลยีสารสนเทศ</p>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <h3 style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: 'var(--primary)' }}>ใบส่งซ่อมบำรุงและประวัติการซ่อม (IT Maintenance Record)</h3>
-                  <p style={{ fontSize: '9.5px', margin: '1px 0 0 0' }}><strong>เลขที่เอกสาร:</strong> {documentNo} | <strong>วันที่ส่งเครื่อง:</strong> {documentDate}</p>
-                </div>
+          {/* A4 sheet preview wrapper */}
+          <div className="doc-preview-outer" style={{
+            backgroundColor: '#0f172a15',
+            padding: '1.5rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+            maxHeight: '75vh',
+            overflowY: 'auto'
+          }}>
+            {selectedComputersData.length === 0 ? (
+              <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: '#fff', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border)' }}>
+                <Printer size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem auto' }} />
+                <h4 style={{ fontWeight: 600, marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>กรุณาเลือกเครื่องคอมพิวเตอร์</h4>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>เลือกเครื่องที่แถบด้านซ้ายมือเพื่อเรนเดอร์เอกสาร PM สำหรับเตรียมปริ้นท์</p>
               </div>
+            ) : (
+              selectedComputersData.map((computer, index) => {
+                // Find user info
+                let docUser = null;
+                if (selectedUserId) {
+                  docUser = users.find(u => u.id.toString() === selectedUserId);
+                } else if (computer.user_id) {
+                  docUser = users.find(u => u.id === computer.user_id);
+                }
 
-              {/* 1. Recipient Details Table */}
-              <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>1. ข้อมูลผู้ใช้งานเครื่องและหน่วยงาน (Sender & Department Details)</div>
-              <table style={{ width: '100%', marginBottom: '8px' }} className="doc-table">
-                <tbody>
-                  <tr>
-                    <td style={{ width: '15%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อ-นามสกุล:</td>
-                    <td style={{ width: '35%' }}>{selectedUser ? selectedUser.name : '________________________'}</td>
-                    <td style={{ width: '15%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ตำแหน่ง:</td>
-                    <td style={{ width: '35%' }}>{selectedUser ? selectedUser.title : '________________________'}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>แผนก/ฝ่าย:</td>
-                    <td>{selectedUser ? selectedUser.department : '________________________'}</td>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>เบอร์ติดต่อ:</td>
-                    <td>{selectedUser ? selectedUser.phone : '________________________'}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>อีเมล:</td>
-                    <td colSpan="3">{selectedUser ? selectedUser.email : '________________________'}</td>
-                  </tr>
-                </tbody>
-              </table>
+                if (!docUser) {
+                  docUser = {
+                    name: computer.username || 'ไม่มีผู้ถือครอง (ส่วนกลาง)',
+                    title: 'พนักงาน',
+                    department: computer.user_dept || 'สำนักงานใหญ่/ฝ่ายกลาง',
+                    phone: 'N/A',
+                    email: 'N/A'
+                  };
+                }
 
-              {/* 2. Computer Specifications Table */}
-              <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>2. ข้อมูลอุปกรณ์และสภาพปัญหาเบื้องต้น (Equipment Details & Symptoms)</div>
-              <table style={{ width: '100%', marginBottom: '8px' }} className="doc-table">
-                <tbody>
-                  <tr>
-                    <td style={{ width: '18%', fontWeight: 700, backgroundColor: '#f8fafc' }}>รหัสทรัพย์สิน (INV):</td>
-                    <td style={{ width: '32%' }}>{selectedComputer ? selectedComputer.otherserial : '________________________'}</td>
-                    <td style={{ width: '18%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ซีเรียลนัมเบอร์ (S/N):</td>
-                    <td style={{ width: '32%' }}>{selectedComputer ? selectedComputer.serial : '________________________'}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ยี่ห้อ / รุ่น:</td>
-                    <td>{selectedComputer ? `${selectedComputer.manufacturer} ${selectedComputer.model}` : '________________________'}</td>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อเครื่อง (Hostname):</td>
-                    <td>{selectedComputer ? selectedComputer.name : '________________________'}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ประเภทการซ่อม:</td>
-                    <td><strong>{maintenanceType}</strong></td>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ระดับความเร่งด่วน:</td>
-                    <td><strong>{urgency}</strong></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>อาการชำรุดเบื้องต้น:</td>
-                    <td colSpan="3" style={{ fontSize: '10px', height: '35px', verticalAlign: 'top', padding: '6px' }}>
-                      {symptoms || '____________________________________________________________________________________________'}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>เครื่องสำรองใช้งาน:</td>
-                    <td colSpan="3">
-                      {hasBackup ? `☑ มีเครื่องสำรองใช้งาน (Asset No./Hostname: ${backupDetails || 'ยังไม่ระบุข้อมูล'})` : '☐ ไม่มีเครื่องสำรองใช้งาน'}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                // Document number format (Entity + YYMM + Asset ID 5 Digit)
+                const cleanPrefix = selectedEntityId ? getEntityPrefix(entityOptions.find(e => e.id.toString() === selectedEntityId.toString())?.name) : 'BPK';
+                const yy = documentDate.substring(2, 4);
+                const mm = documentDate.substring(5, 7);
+                const assetIdStr = String(computer.id).padStart(5, '0');
+                const pageDocNo = `${cleanPrefix}-${yy}${mm}-${assetIdStr}`;
 
-              {/* 3. Pre-maintenance Inspection checklist */}
-              <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>3. ผลการตรวจสอบสภาพเครื่องและอุปกรณ์ต่อพ่วงก่อนการซ่อม (Pre-maintenance Inspection)</div>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr 1fr', 
-                gap: '6px 15px', 
-                padding: '6px 10px', 
-                border: '1px solid #cbd5e1', 
-                borderRadius: '4px', 
-                marginBottom: '8px', 
-                fontSize: '10px', 
-                backgroundColor: '#fafafa' 
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{checklist.powerOn ? '☑' : '☐'}</span> เครื่องเปิดติด บูตเข้า OS ได้ปกติ
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{checklist.screenNormal ? '☑' : '☐'}</span> จอภาพปกติ (ไม่แตก/ไม่ลาย)
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{checklist.keyboardNormal ? '☑' : '☐'}</span> คีย์บอร์ด & ทัชแพดปกติ
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{checklist.portsNormal ? '☑' : '☐'}</span> พอร์ตเชื่อมต่อทำงานได้ปกติ
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{checklist.chargerNormal ? '☑' : '☐'}</span> สายชาร์จ & อะแดปเตอร์ปกติ
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{checklist.bodyNormal ? '☑' : '☐'}</span> โครงสร้างตัวเครื่องปกติ (ไม่แตกหัก)
-                </div>
-              </div>
+                const isLast = index === selectedComputersData.length - 1;
 
-              {/* 4. IT Technician Diagnosis & Action Log */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', marginBottom: '8px', backgroundColor: '#fdfdfd' }}>
-                <div style={{ fontWeight: 700, fontSize: '10.5px', color: 'var(--primary)', marginBottom: '3px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
-                  ⚙️ ส่วนที่ 1: บันทึกการดำเนินการโดยช่างเทคนิคไอที (IT Technician Action & Diagnosis Log)
-                </div>
-                
-                <table style={{ width: '100%', marginBottom: '4px' }} className="doc-table">
-                  <tbody>
-                    <tr>
-                      <td style={{ width: '20%', fontWeight: 700, backgroundColor: '#f8fafc' }}>รายละเอียดการซ่อม:</td>
-                      <td style={{ fontSize: '10px', height: '45px', verticalAlign: 'top', padding: '6px' }}>
-                        {actionLog || '____________________________________________________________________________________________'}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>รายการเปลี่ยนอะไหล่:</td>
-                      <td style={{ fontSize: '10px' }}>
-                        {replacedParts || 'ไม่มีการเปลี่ยนอะไหล่'}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>สถานะการดำเนินการ:</td>
-                      <td>
-                        <span style={{ fontWeight: 700 }}>{maintenanceStatus}</span> | <strong>วันที่เสร็จสิ้น / คาดว่าจะแล้วเสร็จ:</strong> {expectedDate}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                return (
+                  <div 
+                    key={computer.id} 
+                    className="printable-document" 
+                    id="maintenance-form-print-area" 
+                    style={{ 
+                      fontSize: '10.5px', 
+                      lineHeight: '1.35', 
+                      fontFamily: "'Sarabun', sans-serif",
+                      pageBreakAfter: isLast ? 'avoid' : 'always',
+                      breakAfter: isLast ? 'avoid' : 'page',
+                      backgroundColor: '#fff',
+                      color: '#000',
+                      padding: '12mm 15mm',
+                      borderRadius: '4px',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.06)',
+                      width: '100%',
+                      margin: '0 auto',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    {/* Header Letterhead */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '6px', marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {/* Square Box for Logo */}
+                        <div style={{ width: '45px', height: '45px', border: '1px dashed #cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
+                          <img 
+                            src="/logo.png" 
+                            alt="Logo" 
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentNode.innerHTML = '<span style="font-size: 8px; color: #94a3b8; text-align: center; font-weight: bold;">LOGO</span>';
+                            }}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                        <div>
+                          <h2 style={{ fontSize: '13px', fontWeight: 700, margin: 0 }}>บริษัท นิปปอนเพนต์ (ประเทศไทย) จํากัด</h2>
+                          <p style={{ fontSize: '9.5px', color: '#475569', margin: '2px 0 0 0' }}>ฝ่ายเทคโนโลยีสารสนเทศ</p>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <h3 style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: 'var(--primary)' }}>ใบบันทึกการซ่อมบำรุงเครื่องคอมพิวเตอร์ (Preventive Maintenance)</h3>
+                        <p style={{ fontSize: '9.5px', margin: '1px 0 0 0' }}><strong>เลขที่เอกสาร:</strong> {pageDocNo} | <strong>วันที่ตรวจเช็ก:</strong> {documentDate}</p>
+                      </div>
+                    </div>
 
-              {/* 5. Terms & Policy */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', backgroundColor: '#fdfdfd' }}>
-                <div style={{ fontWeight: 700, fontSize: '10.5px', color: 'var(--accent)', marginBottom: '3px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
-                  📝 ข้อตกลงการรับบริการและตรวจสอบความถูกต้อง (Verification Agreement)
-                </div>
-                <div style={{ fontSize: '9px', color: '#475569', lineHeight: '1.4', marginBottom: '4px' }}>
-                  1. ฝ่ายไอทีมีหน้าที่สำรองข้อมูลระบบปฏิบัติการ แต่ผู้ใช้งานจำเป็นต้องสำรองข้อมูลสำคัญในเครื่องก่อนดำเนินการซ่อมแซม ฝ่ายไอทีไม่รับผิดชอบกรณีข้อมูลส่วนบุคคลสูญหาย<br />
-                  2. เมื่อซ่อมแซมเสร็จสิ้น ผู้ใช้งานมีหน้าที่ตรวจสอบสภาพเครื่อง อุปกรณ์ต่อพ่วงภายนอกทั้งหมด และข้อมูลร่วมกับช่างเทคนิคก่อนลงชื่อรับเครื่องคืน<br />
-                  3. กรณีที่ต้องส่งเคลมภายนอกหรือรออะไหล่ ระยะเวลาจะขึ้นอยู่กับเงื่อนไขการรับประกันของผู้จัดจำหน่ายและบริษัทประกันคู่สัญญา
-                </div>
+                    {/* 1. Recipient Details */}
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ fontWeight: 700, fontSize: '10.5px', color: '#000', marginBottom: '3px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                        1. ข้อมูลผู้ใช้งานเครื่องคอมพิวเตอร์ (User Details)
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '4px 15px', padding: '2px 4px' }}>
+                        <div><strong>ชื่อ-นามสกุลผู้ใช้:</strong> {docUser.name}</div>
+                        <div><strong>แผนก/ฝ่าย:</strong> {docUser.department}</div>
+                        <div><strong>ตำแหน่ง:</strong> {docUser.title || 'พนักงาน'}</div>
+                        <div><strong>เบอร์ติดต่อ:</strong> {docUser.phone || 'N/A'}</div>
+                        <div style={{ gridColumn: 'span 2' }}><strong>อีเมล:</strong> {docUser.email || 'N/A'}</div>
+                      </div>
+                    </div>
 
-                {/* 3 Signature Grid for Handover */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '6px' }}>
-                  <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
-                    <span style={{ fontSize: '9px', fontWeight: 700 }}>ลงชื่อผู้ส่งเครื่องซ่อม (Submitted By)</span>
-                    <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '18px auto 3px auto' }}></div>
-                    <span style={{ fontSize: '8.5px' }}>({selectedUser ? selectedUser.name : '.........................................'})</span>
-                    <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>ผู้ใช้งานผู้ส่งเครื่องซ่อมบำรุง</span>
+                    {/* 2. Computer Specifications */}
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontWeight: 700, fontSize: '10.5px', color: '#000', marginBottom: '3px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                        2. ข้อมูลทรัพย์สินคอมพิวเตอร์ (Computer Specs & Asset Info)
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '2px 4px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr', gap: '4px 15px' }}>
+                          <div><strong>ชื่อเครื่อง (Hostname):</strong> {computer.name}</div>
+                          <div><strong>ยี่ห้อ / รุ่น (Brand & Model):</strong> {computer.manufacturer} {computer.model}</div>
+                          <div><strong>รหัสทรัพย์สิน (Inventory No.):</strong> {computer.otherserial || 'N/A'}</div>
+                          <div><strong>หมายเลขซีเรียล (Serial Number):</strong> {computer.serial}</div>
+                        </div>
+                        <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '4px', marginTop: '2px' }}>
+                          <strong>สถานที่วางอุปกรณ์ (Location):</strong> {computer.location || 'ไม่ระบุสถานที่'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Inspection checklist (Rendered dynamically based on checked items on web form, printed as empty checkboxes ☐) */}
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontWeight: 700, fontSize: '10.5px', color: '#000', marginBottom: '4px', borderBottom: '1.5px solid #000', paddingBottom: '2px' }}>
+                        3. รายการตรวจเช็กและบำรุงรักษาอุปกรณ์ (Preventive Maintenance Checklist)
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        
+                        {/* Hardware */}
+                        <div style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#fdfdfd' }}>
+                          <div style={{ fontWeight: 700, fontSize: '9.5px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '2px', marginBottom: '6px', color: 'var(--primary)' }}>
+                            🔌 ตรวจเช็กฮาร์ดแวร์และอุปกรณ์ภายนอก (Hardware Checklist)
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '9.5px' }}>
+                            {getHardwareChecked('powerOn') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getHardwareText('powerOn')}</span>
+                              </div>
+                            )}
+                            {getHardwareChecked('screenNormal') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getHardwareText('screenNormal')}</span>
+                              </div>
+                            )}
+                            {getHardwareChecked('keyboardNormal') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getHardwareText('keyboardNormal')}</span>
+                              </div>
+                            )}
+                            {getHardwareChecked('portsNormal') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getHardwareText('portsNormal')}</span>
+                              </div>
+                            )}
+                            {getHardwareChecked('chargerNormal') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getHardwareText('chargerNormal')}</span>
+                              </div>
+                            )}
+                            {getHardwareChecked('bodyNormal') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getHardwareText('bodyNormal')}</span>
+                              </div>
+                            )}
+                            {!hardwareItems.some(item => item.checked) && (
+                              <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>ไม่ได้เลือกรายการฮาร์ดแวร์</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Software */}
+                        <div style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#fdfdfd' }}>
+                          <div style={{ fontWeight: 700, fontSize: '9.5px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '2px', marginBottom: '6px', color: '#059669' }}>
+                            💾 ตรวจเช็กระบบและซอฟต์แวร์ (Software Checklist)
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '9.5px' }}>
+                            {getSoftwareChecked('softwareAntivirus') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getSoftwareText('softwareAntivirus')}</span>
+                              </div>
+                            )}
+                            {getSoftwareChecked('softwareOSUpdate') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getSoftwareText('softwareOSUpdate')}</span>
+                              </div>
+                            )}
+                            {getSoftwareChecked('softwareFirewall') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getSoftwareText('softwareFirewall')}</span>
+                              </div>
+                            )}
+                            {getSoftwareChecked('softwareCleanup') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getSoftwareText('softwareCleanup')}</span>
+                              </div>
+                            )}
+                            {getSoftwareChecked('softwareBrowser') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getSoftwareText('softwareBrowser')}</span>
+                              </div>
+                            )}
+                            {getSoftwareChecked('softwareLicense') && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>☐</span>
+                                <span>{getSoftwareText('softwareLicense')}</span>
+                              </div>
+                            )}
+                            {!softwareItems.some(item => item.checked) && (
+                              <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>ไม่ได้เลือกรายการซอฟต์แวร์</span>
+                            )}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    {/* 4. Notes Section for manual writing */}
+                    <div style={{ 
+                      border: '1px dashed #cbd5e1', 
+                      borderRadius: '4px', 
+                      padding: '8px 12px', 
+                      marginBottom: '15px', 
+                      fontSize: '9.5px', 
+                      backgroundColor: '#fafafa' 
+                    }}>
+                      <strong>บันทึกผลการดำเนินการ / ข้อเสนอแนะเพิ่มเติม (Technician Notes):</strong>
+                      <div style={{ height: '35px', borderBottom: '1px dotted #cbd5e1', marginTop: '10px' }}></div>
+                      <div style={{ height: '25px', borderBottom: '1px dotted #cbd5e1', marginTop: '10px' }}></div>
+                    </div>
+
+                    {/* 5. Signature Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', textAlign: 'center', marginTop: '10px' }}>
+                      <div className="signature-box" style={{ border: '1px solid #cbd5e1', padding: '6px', borderRadius: '4px', backgroundColor: '#fafafa' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 700 }}>ลงชื่อผู้ตรวจเช็ก (IT Technician)</span>
+                        <div style={{ width: '80%', borderBottom: '1px dotted #000', margin: '22px auto 4px auto' }}></div>
+                        <span style={{ fontSize: '8.5px' }}>(........................................................)</span>
+                        <span style={{ fontSize: '7.5px', color: '#555', display: 'block', marginTop: '1px' }}>เจ้าหน้าที่ฝ่าย IT Support</span>
+                      </div>
+                      
+                      <div className="signature-box" style={{ border: '1px solid #cbd5e1', padding: '6px', borderRadius: '4px', backgroundColor: '#fafafa' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 700 }}>ลงชื่อผู้รับรองการตรวจเช็ก (Computer User)</span>
+                        <div style={{ width: '80%', borderBottom: '1px dotted #000', margin: '22px auto 4px auto' }}></div>
+                        <span style={{ fontSize: '8.5px' }}>({docUser.name})</span>
+                        <span style={{ fontSize: '7.5px', color: '#555', display: 'block', marginTop: '1px' }}>พนักงานผู้ถือครองเครื่อง</span>
+                      </div>
+
+                      <div className="signature-box" style={{ border: '1px solid #cbd5e1', padding: '6px', borderRadius: '4px', backgroundColor: '#fafafa' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 700 }}>ลงชื่อผู้ตรวจสอบ/พยาน (Witness/Manager)</span>
+                        <div style={{ width: '80%', borderBottom: '1px dotted #000', margin: '22px auto 4px auto' }}></div>
+                        <span style={{ fontSize: '8.5px' }}>(........................................................)</span>
+                        <span style={{ fontSize: '7.5px', color: '#555', display: 'block', marginTop: '1px' }}>พยาน / หัวหน้างานต้นสังกัด</span>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div style={{ 
+                      marginTop: '15px', 
+                      borderTop: '1px solid #000', 
+                      paddingTop: '4px', 
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '8px', 
+                      color: '#444' 
+                    }}>
+                      <span>* เอกสารตรวจเช็ก Preventive Maintenance นี้ ถูกสร้างผ่านระบบบริหารจัดการทะเบียนสินทรัพย์ GLPI 11 *</span>
+                      <span style={{ fontStyle: 'italic', fontWeight: 600 }}>พิมพ์เมื่อ: {printDateTime} น.</span>
+                    </div>
+
                   </div>
-                  
-                  <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
-                    <span style={{ fontSize: '9px', fontWeight: 700 }}>ลงชื่อช่างผู้ดำเนินการ (Technician)</span>
-                    <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '18px auto 3px auto' }}></div>
-                    <span style={{ fontSize: '8.5px' }}>(........................................................)</span>
-                    <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>ช่างผู้รับซ่อมบำรุงและแก้ไข</span>
-                  </div>
-
-                  <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
-                    <span style={{ fontSize: '9px', fontWeight: 700 }}>ลงชื่อผู้ส่งคืนเครื่อง (Returned By)</span>
-                    <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '18px auto 3px auto' }}></div>
-                    <span style={{ fontSize: '8.5px' }}>(........................................................)</span>
-                    <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>ลงชื่อรับมอบเครื่องคืนหลังซ่อมเสร็จ</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Notice / Custom Footer */}
-              <div style={{ 
-                marginTop: '10px', 
-                borderTop: '1px solid #cbd5e1', 
-                paddingTop: '4px', 
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '8.5px', 
-                color: '#64748b' 
-              }}>
-                <span>* เอกสารการส่งมอบ-ส่งคืนสินทรัพย์นี้ ถูกจัดทำและอ้างอิงผ่านระบบบริหารจัดการทะเบียนสินทรัพย์ไอที *</span>
-                <span style={{ fontStyle: 'italic' }}>พิมพ์เมื่อ: {printDateTime} น.</span>
-              </div>
-
-            </div>
+                );
+              })
+            )}
           </div>
         </div>
 

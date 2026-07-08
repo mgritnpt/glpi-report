@@ -1,7 +1,7 @@
 import React from 'react';
-import { LayoutGrid, FileText, Wrench, Laptop, Sun, Moon, Database, ChevronRight, FileSpreadsheet, ClipboardList } from 'lucide-react';
+import { LayoutGrid, FileText, Wrench, Laptop, Sun, Moon, Database, ChevronRight, FileSpreadsheet, ClipboardList, LogOut } from 'lucide-react';
 
-export default function Layout({ children, activeTab, setActiveTab, theme, toggleTheme, dbStatus }) {
+export default function Layout({ children, activeTab, setActiveTab, theme, toggleTheme, dbStatus, user, onLogout }) {
   const menuItems = [
     { id: 'dashboard', label: 'ภาพรวมระบบ', icon: LayoutGrid, desc: 'แดชบอร์ดสรุปสถิติ' },
     { id: 'receiving', label: 'ใบรับมอบคอมพิวเตอร์', icon: FileText, desc: 'แบบฟอร์มส่งมอบคอมฯ' },
@@ -121,49 +121,75 @@ export default function Layout({ children, activeTab, setActiveTab, theme, toggl
           padding: '1rem',
           borderTop: '1px solid var(--border)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
+          flexDirection: 'column',
+          gap: '0.75rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
-              backgroundColor: 'var(--primary)',
+              background: 'linear-gradient(135deg, var(--primary), var(--accent))',
               color: '#fff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 600,
-              fontSize: '0.85rem'
+              fontSize: '0.9rem',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.15)'
             }}>
-              IT
+              {user ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'IT'}
             </div>
-            <div className="user-info-text" style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>IT Admin</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>GLPI Operator</span>
+            <div className="user-info-text" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={user ? user.name : 'ผู้ใช้งาน'}>
+                {user ? user.name : 'ผู้ใช้งาน'}
+              </span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user ? user.department : 'แผนก'}
+              </span>
             </div>
           </div>
 
-          <button
-            onClick={toggleTheme}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--text-secondary)',
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-sm)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'var(--bg-tertiary)',
-              transition: 'var(--transition)'
-            }}
-            title={theme === 'dark' ? 'เปิดโหมดกลางวัน' : 'เปิดโหมดกลางคืน'}
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={toggleTheme}
+              style={{
+                flexGrow: 1,
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--text-secondary)',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'var(--bg-tertiary)',
+                transition: 'var(--transition)'
+              }}
+              title={theme === 'dark' ? 'เปิดโหมดกลางวัน' : 'เปิดโหมดกลางคืน'}
+            >
+              {theme === 'dark' ? <><Sun size={16} style={{marginRight: '0.25rem'}} /> สว่าง</> : <><Moon size={16} style={{marginRight: '0.25rem'}} /> มืด</>}
+            </button>
+            
+            <button
+              onClick={onLogout}
+              style={{
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--danger)',
+                padding: '0.5rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'var(--danger-light)',
+                transition: 'var(--transition)'
+              }}
+              title="ออกจากระบบ"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
       </aside>
 
