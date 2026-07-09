@@ -368,12 +368,10 @@ h1, h2, h3, h4, h5, h6 {
   width: 210mm; /* Fixed A4 physical width */
   height: 297mm; /* Fixed A4 physical height */
   margin: 0 auto;
-  padding: 10mm 12mm; /* Identical margins for screen and print */
+  padding: 10mm 12mm 15mm 12mm; /* Identical margins for screen and print */
   font-family: 'Sarabun', sans-serif;
   border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Distribute sections evenly to fill A4 sheet */
+  display: block !important; /* Rely on standard block flow to avoid browser flex bugs */
   position: relative;
   box-sizing: border-box;
   overflow: hidden; /* Guarantee nothing bleeds beyond 1 page */
@@ -381,7 +379,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .printable-document * {
-  color: #000000 !important; /* Force black text in document preview and print */
+  color: #000000 !important; /* Force black text */
+}
+
+/* Margins for direct sections inside printable document to space them out evenly */
+.printable-document .doc-header-wrapper {
+  margin-bottom: 12px !important;
+}
+
+.printable-document .section-wrapper {
+  margin-bottom: 12px !important;
+  page-break-inside: avoid !important;
 }
 
 /* Compact tables inside A4 document (both screen and print) */
@@ -389,18 +397,18 @@ h1, h2, h3, h4, h5, h6 {
   width: 100% !important;
   table-layout: fixed !important; /* Force exact fit, preventing right edge bleed */
   border-collapse: collapse;
-  margin-top: 0 !important;
-  margin-bottom: 4px !important;
-  page-break-inside: avoid !important; /* Prevent page break splits */
+  margin-top: 4px !important;
+  margin-bottom: 0 !important;
+  page-break-inside: avoid !important;
 }
 
 .printable-document .doc-table th,
 .printable-document .doc-table td {
   border: 1px solid #cbd5e1;
-  padding: 2.5px 5px !important; /* Tight padding for cells */
+  padding: 3.5px 6px !important; /* Proper padding for cells */
   font-size: 10px !important; /* Set table cell font-size to 10px */
-  line-height: 1.2 !important;
-  word-wrap: break-word !important; /* Prevent text overflow */
+  line-height: 1.25 !important;
+  word-wrap: break-word !important;
   overflow: hidden !important;
 }
 
@@ -412,49 +420,48 @@ h1, h2, h3, h4, h5, h6 {
 /* Compact section titles */
 .printable-document .doc-section-title {
   font-size: 10px !important; /* Set section title font-size to 10px */
-  margin-top: 4px !important;
-  margin-bottom: 2px !important;
+  margin-top: 0 !important;
+  margin-bottom: 3px !important;
   font-weight: 700 !important;
   page-break-inside: avoid !important;
 }
 
 /* Compact Accessories details grid */
 .printable-document .accessories-grid {
-  margin-bottom: 4px !important;
-  padding: 4px 8px !important;
-  gap: 2px 15px !important;
+  padding: 6px 10px !important;
+  gap: 4px 20px !important;
   font-size: 10px !important;
   page-break-inside: avoid !important;
 }
 
 /* Compact Handover and Return wrappers */
 .printable-document .part-section {
-  padding: 4px 8px !important;
-  margin-bottom: 5px !important;
+  padding: 6px 10px !important;
+  margin-bottom: 12px !important;
   page-break-inside: avoid !important;
 }
 
 /* Compact lists (Terms & Conditions) */
 .printable-document ul,
 .printable-document ol {
-  margin: 1px 0 0 0 !important;
+  margin: 2px 0 0 0 !important;
   padding-left: 12px !important;
 }
 
 .printable-document li {
   font-size: 8px !important; /* Set list item font-size to 8px */
-  line-height: 1.15 !important;
+  line-height: 1.25 !important;
 }
 
 /* Compact signature boxes */
 .printable-document .signature-grid {
-  margin-top: 4px !important;
-  gap: 8px !important;
+  margin-top: 8px !important;
+  gap: 10px !important;
   page-break-inside: avoid !important;
 }
 
 .printable-document .signature-box {
-  padding: 2px !important;
+  padding: 4px !important;
   border: 1px solid #f1f5f9;
   border-radius: 4px;
   background-color: #fdfdfd;
@@ -467,12 +474,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Dotted line margin for writing space */
 .printable-document .signature-box > div {
-  margin: 18px auto 3px auto !important; /* Lock print/screen signature spacing */
+  margin: 22px auto 4px auto !important; /* Lock print/screen signature spacing */
 }
 
-/* Footer layout */
+/* Footer layout - positioned absolutely at the bottom of A4 container */
 .printable-document .custom-print-footer {
-  margin-top: auto !important; /* Push to the very bottom */
+  position: absolute !important;
+  bottom: 10mm !important;
+  left: 12mm !important;
+  right: 12mm !important;
   border-top: 1px solid #cbd5e1;
   padding-top: 4px;
   display: flex;
@@ -596,6 +606,8 @@ h1, h2, h3, h4, h5, h6 {
     color: #000000 !important;
     padding: 0 !important;
     margin: 0 !important;
+    -webkit-print-color-adjust: exact !important; /* Force background colors/graphics to print */
+    print-color-adjust: exact !important;
   }
 
   /* Hide UI elements marked as no-print */
@@ -641,20 +653,18 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: none !important;
     border: none !important;
     margin: 0 auto !important;
-    padding: 10mm 12mm !important; /* Keep margins identical to screen */
-    width: 210mm !important; /* Force exact A4 width */
-    height: 297mm !important; /* Force exact A4 height */
+    padding: 10mm 12mm !important; /* Match screen padding margins */
+    width: 210mm !important; /* Force exact physical A4 width */
+    height: 297mm !important; /* Force exact physical A4 height */
     box-sizing: border-box !important;
     page-break-inside: avoid !important;
     page-break-after: avoid !important;
-    display: flex !important; /* Flexbox is safe when height is fixed and fits on 1 page */
-    flex-direction: column !important;
-    justify-content: space-between !important;
+    display: block !important; /* Avoid buggy flexbox print behavior and use normal page block flow */
     overflow: hidden !important;
   }
 
   @page {
     size: A4;
-    margin: 0 !important; /* Clear print margins - padding behaves as margin */
+    margin: 0 !important; /* Zero margin because .printable-document defines its own padding as margin */
   }
 }

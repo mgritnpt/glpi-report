@@ -444,7 +444,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     }}
                   >
                     {/* Header Letterhead */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '6px', marginBottom: '8px' }}>
+                    <div className="doc-header-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '6px', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '45px', height: '45px', border: '1px dashed #cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
                           <img 
@@ -469,7 +469,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* 1. Recipient Details Table */}
-                    <div>
+                    <div className="section-wrapper">
                       <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>1. ข้อมูลผู้รับมอบ / ผู้ส่งคืน อุปกรณ์ (Equipment Recipient / Returner Detail)</div>
                       <table style={{ width: '100%', marginBottom: '0px' }} className="doc-table">
                         <tbody>
@@ -494,7 +494,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* 2. Computer Specifications Table */}
-                    <div>
+                    <div className="section-wrapper">
                       <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>2. ข้อมูลเครื่องคอมพิวเตอร์หลัก (Computer Specifications)</div>
                       <table style={{ width: '100%', marginBottom: '0px' }} className="doc-table">
                         <tbody>
@@ -521,7 +521,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* 3. Accessories Details Grid */}
-                    <div>
+                    <div className="section-wrapper">
                       <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>3. อุปกรณ์เสริมพ่วงประกอบที่ส่งมอบ (Accessories Handed Over)</div>
                       <div className="accessories-grid" style={{ 
                         display: 'grid', 
