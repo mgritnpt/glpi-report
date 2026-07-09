@@ -368,7 +368,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 210mm; /* Fixed A4 physical width */
   height: 297mm; /* Fixed A4 physical height */
   margin: 0 auto;
-  padding: 10mm 12mm 15mm 12mm; /* Identical margins for screen and print */
+  padding: 8mm 12mm 12mm 12mm; /* Reduced padding margins for safety margin */
   font-family: 'Sarabun', sans-serif;
   border-radius: 4px;
   display: block !important; /* Rely on standard block flow to avoid browser flex bugs */
@@ -384,11 +384,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Margins for direct sections inside printable document to space them out evenly */
 .printable-document .doc-header-wrapper {
-  margin-bottom: 15px !important;
+  margin-bottom: 10px !important;
 }
 
 .printable-document .section-wrapper {
-  margin-bottom: 15px !important;
+  margin-bottom: 10px !important;
   page-break-inside: avoid !important;
 }
 
@@ -405,7 +405,7 @@ h1, h2, h3, h4, h5, h6 {
 .printable-document .doc-table th,
 .printable-document .doc-table td {
   border: 1px solid #cbd5e1;
-  padding: 4px 7px !important; /* Proper padding for cells */
+  padding: 3px 6px !important; /* Compact padding for cells */
   font-size: 10.8px !important; /* Set table cell font-size to 10.8px */
   line-height: 1.25 !important;
   word-wrap: break-word !important;
@@ -421,14 +421,14 @@ h1, h2, h3, h4, h5, h6 {
 .printable-document .doc-section-title {
   font-size: 11px !important; /* Set section title font-size to 11px */
   margin-top: 0 !important;
-  margin-bottom: 4px !important;
+  margin-bottom: 3px !important;
   font-weight: 700 !important;
   page-break-inside: avoid !important;
 }
 
 /* Compact Accessories details grid */
 .printable-document .accessories-grid {
-  padding: 6px 10px !important;
+  padding: 5px 10px !important;
   gap: 4px 20px !important;
   font-size: 10.8px !important;
   page-break-inside: avoid !important;
@@ -436,8 +436,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Compact Handover and Return wrappers */
 .printable-document .part-section {
-  padding: 6px 10px !important;
-  margin-bottom: 15px !important;
+  padding: 5px 10px !important;
+  margin-bottom: 10px !important;
   page-break-inside: avoid !important;
 }
 
@@ -455,13 +455,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Compact signature boxes */
 .printable-document .signature-grid {
-  margin-top: 8px !important;
+  margin-top: 6px !important;
   gap: 10px !important;
   page-break-inside: avoid !important;
 }
 
 .printable-document .signature-box {
-  padding: 4px !important;
+  padding: 3px !important;
   border: 1px solid #f1f5f9;
   border-radius: 4px;
   background-color: #fdfdfd;
@@ -474,13 +474,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Dotted line margin for writing space */
 .printable-document .signature-box > div {
-  margin: 24px auto 4px auto !important; /* Lock print/screen signature spacing */
+  margin: 20px auto 4px auto !important; /* Lock print/screen signature spacing */
 }
 
 /* Footer layout - positioned absolutely at the bottom of A4 container */
 .printable-document .custom-print-footer {
   position: absolute !important;
-  bottom: 10mm !important;
+  bottom: 8mm !important;
   left: 12mm !important;
   right: 12mm !important;
   border-top: 1px solid #cbd5e1;

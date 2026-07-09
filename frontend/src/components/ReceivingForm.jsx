@@ -569,17 +569,17 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
 
                     {/* Part 1: Handover */}
                     <div className="part-section" style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', marginBottom: '8px', backgroundColor: '#fdfdfd' }}>
-                      <div style={{ fontWeight: 700, fontSize: '10.5px', color: 'var(--primary)', marginBottom: '3px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
+                      <div style={{ fontWeight: 700, fontSize: '11.5px', color: 'var(--primary)', marginBottom: '3px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
                         📝 ส่วนที่ 1: บันทึกการส่งมอบและรับอุปกรณ์คอมพิวเตอร์ (IT Asset Handover Record)
                       </div>
-                      <div style={{ fontSize: '9.5px', color: '#334155', lineHeight: '1.4', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '10.5px', color: '#334155', lineHeight: '1.4', marginBottom: '6px' }}>
                         ข้าพเจ้าได้ตรวจสอบและรับมอบอุปกรณ์ข้างต้นในสภาพทำงานปกติ 100% เรียบร้อยแล้ว 
                         และตกลงจะปฏิบัติตามนโยบายความมั่นคงปลอดภัยสารสนเทศของบริษัทฯ เสมอ
-                        {remarks && <span style={{ display: 'block', marginTop: '2px', fontStyle: 'italic', color: '#475569' }}><strong>หมายเหตุ:</strong> {remarks}</span>}
+                        {remarks && <span style={{ display: 'block', marginTop: '2px', fontStyle: 'italic', color: '#475569', fontSize: '9.5px' }}><strong>หมายเหตุ:</strong> {remarks}</span>}
                       </div>
 
                       {/* Terms and Conditions inside Part 1 */}
-                      <div style={{ fontSize: '9px', color: '#475569', marginTop: '4px', borderTop: '1px dashed #e2e8f0', paddingTop: '4px' }}>
+                      <div style={{ fontSize: '10px', color: '#475569', marginTop: '4px', borderTop: '1px dashed #e2e8f0', paddingTop: '4px' }}>
                         <strong>ข้อตกลงการใช้งาน:</strong>
                         <ul style={{ margin: '2px 0 0 0', paddingLeft: '15px', listStyleType: 'decimal' }}>
                           <li>ผู้รับอุปกรณ์มีหน้าที่รับผิดชอบและดูแลรักษาความปลอดภัยของคอมพิวเตอร์และอุปกรณ์ทั้งหมดให้อยู่ในสภาพพร้อมใช้งานเสมอ</li>
