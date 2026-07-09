@@ -511,10 +511,22 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                             <td>{computer.name}</td>
                           </tr>
                           <tr>
-                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>รายละเอียดสเปก:</td>
-                            <td colSpan="3" style={{ fontSize: '10.5px' }}>
-                              <span><strong>OS:</strong> {computer.os || 'Windows 11 Pro'} | <strong>CPU:</strong> {computer.cpu || 'Intel Core i5'} | <strong>RAM:</strong> {computer.ram || '16 GB'} | <strong>Storage:</strong> {computer.storage || '512 GB SSD'}</span>
-                            </td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ระบบปฏิบัติการ (OS):</td>
+                            <td>{computer.os || 'Windows 11 Pro'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>หน่วยประมวลผล (CPU):</td>
+                            <td>{computer.cpu || 'Intel Core i5'}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>หน่วยความจำ (RAM):</td>
+                            <td>{computer.ram || '16 GB'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ฮาร์ดดิสก์ (Storage):</td>
+                            <td>{computer.storage || '512 GB SSD'}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>LAN MAC Address:</td>
+                            <td>{computer.lan_mac || 'ไม่ระบุ (N/A)'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>WiFi MAC Address:</td>
+                            <td>{computer.wifi_mac || 'ไม่ระบุ (N/A)'}</td>
                           </tr>
                         </tbody>
                       </table>
