@@ -529,15 +529,15 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 100% !important;
     width: 100% !important;
     box-shadow: none !important;
+    max-height: none !important; /* Prevent scrollable truncation when printing */
+    overflow: visible !important; /* Ensure all pages render when printing */
   }
 
   .printable-document {
     box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     width: 100% !important;
     min-height: auto !important;
-    page-break-after: avoid;
     page-break-inside: avoid;
     font-family: 'Sarabun', sans-serif !important;
   }
