@@ -517,6 +517,18 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                             <td>{computer.model || 'N/A'}</td>
                           </tr>
                           <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>หน่วยประมวลผล (CPU):</td>
+                            <td>{computer.cpu || 'ไม่ระบุ (N/A)'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>หน่วยความจำ (RAM):</td>
+                            <td>{computer.ram || 'ไม่ระบุ (N/A)'}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ฮาร์ดดิสก์ (Storage):</td>
+                            <td>{computer.storage || 'ไม่ระบุ (N/A)'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>สถานที่ (Location):</td>
+                            <td>{computer.location || 'ไม่ระบุสถานที่'}</td>
+                          </tr>
+                          <tr>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ความคิดเห็น / หมายเหตุ (Comments):</td>
                             <td colSpan="3" style={{ height: '36px', verticalAlign: 'top', padding: '5px 7px' }}>
                               {computer.comment || '-'}

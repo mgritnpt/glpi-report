@@ -384,11 +384,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Margins for direct sections inside printable document to space them out evenly */
 .printable-document .doc-header-wrapper {
-  margin-bottom: 10px !important;
+  margin-bottom: 14px !important;
 }
 
 .printable-document .section-wrapper {
-  margin-bottom: 10px !important;
+  margin-bottom: 14px !important;
   page-break-inside: avoid !important;
 }
 
@@ -437,7 +437,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Compact Handover and Return wrappers */
 .printable-document .part-section {
   padding: 5px 10px !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 14px !important;
   page-break-inside: avoid !important;
 }
 
