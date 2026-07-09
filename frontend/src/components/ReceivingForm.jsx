@@ -22,6 +22,17 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLocation, setFilterLocation] = useState('all');
   const [filterEntity, setFilterEntity] = useState('all');
+  const [returnDate, setReturnDate] = useState('');
+  const [returnReason, setReturnReason] = useState('');
+  const [returnCondition, setReturnCondition] = useState('');
+  const [fineAmount, setFineAmount] = useState('');
+
+  const formatReturnDate = (dateStr) => {
+    if (!dateStr) return '_____/_____/________';
+    const [yy, mm, dd] = dateStr.split('-');
+    const year = parseInt(yy) + 543;
+    return `${dd}/${mm}/${year}`;
+  };
 
   const locationsList = [...new Set(computers.map(c => c.location).filter(Boolean))].sort();
   const entitiesList = [...new Set(computers.map(c => c.entity_name).filter(Boolean))].sort();
@@ -385,6 +396,69 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                 onChange={(e) => setRemarks(e.target.value)}
               />
             </div>
+
+            {/* Part 2: Return Settings Section */}
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.85rem', marginTop: '0.85rem' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, paddingBottom: '0.4rem', marginBottom: '0.85rem', color: 'var(--accent)' }}>
+                📤 บันทึกการส่งคืน (ส่วนที่ 2)
+              </h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.8rem' }}>วันที่ส่งคืน</label>
+                  <input 
+                    type="date" 
+                    className="form-control" 
+                    value={returnDate} 
+                    onChange={(e) => setReturnDate(e.target.value)} 
+                    style={{ fontSize: '0.8rem' }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.8rem' }}>ค่าปรับอุปกรณ์ชำรุด (บาท)</label>
+                  <input 
+                    type="number" 
+                    className="form-control" 
+                    value={fineAmount} 
+                    onChange={(e) => setFineAmount(e.target.value)} 
+                    placeholder="ระบุจำนวนเงิน..."
+                    style={{ fontSize: '0.8rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.05rem' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.8rem' }}>เหตุผลการส่งคืน</label>
+                  <select 
+                    className="form-control"
+                    value={returnReason}
+                    onChange={(e) => setReturnReason(e.target.value)}
+                    style={{ fontSize: '0.8rem' }}
+                  >
+                    <option value="">-- ปล่อยว่าง (เขียนมือ) --</option>
+                    <option value="resign">ลาออก (Resign)</option>
+                    <option value="upgrade">เปลี่ยนเครื่อง/อัปเกรด (Upgrade)</option>
+                    <option value="repair">ชำรุด/ส่งซ่อม (Repair)</option>
+                    <option value="other">อื่นๆ (Others)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.8rem' }}>สภาพอุปกรณ์ตอนคืน</label>
+                  <select 
+                    className="form-control"
+                    value={returnCondition}
+                    onChange={(e) => setReturnCondition(e.target.value)}
+                    style={{ fontSize: '0.8rem' }}
+                  >
+                    <option value="">-- ปล่อยว่าง (เขียนมือ) --</option>
+                    <option value="normal">ปกติ (Normal)</option>
+                    <option value="partial">ชำรุดบางส่วน (Partially Damaged)</option>
+                    <option value="full">เสียหายทั้งหมด/เปิดไม่ติด (Fully Damaged)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style={{
@@ -675,20 +749,20 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       {/* Return Details Grid with Checkboxes for Reason and Condition */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '6px', padding: '6px 8px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '10.5px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px 15px' }}>
-                          <div><strong>วันที่ส่งคืน:</strong> _____/_____/________</div>
+                          <div><strong>วันที่ส่งคืน:</strong> {formatReturnDate(returnDate)}</div>
                           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <strong>เหตุผลการส่งคืน:</strong>
-                            <span>☐ ลาออก (Resign)</span>
-                            <span>☐ เปลี่ยนเครื่อง/อัปเกรด (Upgrade)</span>
-                            <span>☐ ชำรุด/ส่งซ่อม (Repair)</span>
-                            <span>☐ อื่นๆ (Others)</span>
+                            <span>{returnReason === 'resign' ? '☑' : '☐'} ลาออก (Resign)</span>
+                            <span>{returnReason === 'upgrade' ? '☑' : '☐'} เปลี่ยนเครื่อง/อัปเกรด (Upgrade)</span>
+                            <span>{returnReason === 'repair' ? '☑' : '☐'} ชำรุด/ส่งซ่อม (Repair)</span>
+                            <span>{returnReason === 'other' ? '☑' : '☐'} อื่นๆ (Others)</span>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '2px', flexWrap: 'wrap' }}>
                           <strong>สภาพอุปกรณ์ตอนส่งคืน:</strong>
-                          <span>☐ ปกติ (Normal)</span>
-                          <span>☐ ชำรุดเสียหายบางส่วน (Partially Damaged)</span>
-                          <span>☐ เสียหายทั้งหมด/เปิดไม่ติด (Fully Damaged)</span>
+                          <span>{returnCondition === 'normal' ? '☑' : '☐'} ปกติ (Normal)</span>
+                          <span>{returnCondition === 'partial' ? '☑' : '☐'} ชำรุดเสียหายบางส่วน (Partially Damaged)</span>
+                          <span>{returnCondition === 'full' ? '☑' : '☐'} เสียหายทั้งหมด/เปิดไม่ติด (Fully Damaged)</span>
                         </div>
                       </div>
 
@@ -731,7 +805,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
 
                       {/* Missing Items Fine Clause inside Part 2 */}
                       <div style={{ fontSize: '10px', color: 'var(--danger)', marginBottom: '6px', fontWeight: 700 }}>
-                        *กรณีส่งมอบไม่ครบ ต้องชำระค่าเสียหายจำนวน ............................................................ บาท
+                        *กรณีส่งมอบไม่ครบ หรืออุปกรณ์ชำรุดเสียหาย จะต้องชำระค่าเสียหาย จำนวน {fineAmount ? `${fineAmount} บาท` : '............................................................ บาท'}
                       </div>
 
                       {/* 3 Signature Grid for Return */}
