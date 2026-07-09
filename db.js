@@ -51,7 +51,8 @@ const mockComputers = [
     purchase_date: '2025-01-15',
     warranty: '3 ปี (หมดประกัน 2028-01-15)',
     lan_mac: '10:7B:44:A1:B2:C3',
-    wifi_mac: 'E0:2B:96:C4:D5:E6'
+    wifi_mac: 'E0:2B:96:C4:D5:E6',
+    comment: 'เครื่องใช้งานทั่วไปของแผนกไอที สภาพตัวเครื่องสมบูรณ์ปกติ ไม่มีตำหนิ'
   },
   {
     id: 2,
@@ -73,7 +74,8 @@ const mockComputers = [
     purchase_date: '2024-06-10',
     warranty: '1 ปี (หมดประกัน 2025-06-10)',
     lan_mac: 'AC:87:A3:11:22:33',
-    wifi_mac: 'F0:18:98:44:55:66'
+    wifi_mac: 'F0:18:98:44:55:66',
+    comment: 'MacBook Air สำหรับงานบุคคล สภาพเครื่องดีเยี่ยม แบตเตอรี่สุขภาพปกติ 98%'
   },
   {
     id: 3,
@@ -95,7 +97,8 @@ const mockComputers = [
     purchase_date: '2025-03-20',
     warranty: '3 ปี (หมดประกัน 2028-03-20)',
     lan_mac: 'A0:B1:C2:D3:E4:F5',
-    wifi_mac: 'B0:C1:D2:E3:F4:A5'
+    wifi_mac: 'B0:C1:D2:E3:F4:A5',
+    comment: 'เครื่อง PC บัญชี อัปเกรดความจุเรียบร้อย ติดตั้งระบบงานและโปรแกรมบัญชีพร้อมใช้งาน'
   },
   {
     id: 4,
@@ -117,7 +120,8 @@ const mockComputers = [
     purchase_date: '2025-11-05',
     warranty: '2 ปี (หมดประกัน 2027-11-05)',
     lan_mac: 'C0:3E:B1:88:99:AA',
-    wifi_mac: 'D0:4E:C1:BB:CC:DD'
+    wifi_mac: 'D0:4E:C1:BB:CC:DD',
+    comment: 'โน้ตบุ๊กฝ่ายการตลาด จอ OLED สีสันเที่ยงตรง สภาพดีเยี่ยมพร้อมใช้งาน'
   },
   {
     id: 5,
@@ -139,7 +143,8 @@ const mockComputers = [
     purchase_date: '2024-02-12',
     warranty: '3 ปี (หมดประกัน 2027-02-12)',
     lan_mac: 'E0:D1:C2:B3:A4:95',
-    wifi_mac: 'F0:E1:D2:C3:B4:A5'
+    wifi_mac: 'F0:E1:D2:C3:B4:A5',
+    comment: 'เครื่องสำรองสำหรับเจ้าหน้าที่ สเปกเดิมโรงงาน สภาพดีเยี่ยม คีย์บอร์ดเมาส์ครบชุด'
   },
   {
     id: 6,
@@ -161,7 +166,8 @@ const mockComputers = [
     purchase_date: '2024-08-25',
     warranty: '3 ปี (หมดประกัน 2027-08-25)',
     lan_mac: 'F0:2F:74:99:88:77',
-    wifi_mac: '10:BF:94:66:55:44'
+    wifi_mac: '10:BF:94:66:55:44',
+    comment: 'เครื่องส่งซ่อมเมนบอร์ดและเปลี่ยนพอร์ตชาร์จ ดำเนินการซ่อมเสร็จสิ้นและทดสอบผ่านปกติ'
   }
 ];
 
@@ -333,6 +339,7 @@ async function getComputers(search = '') {
         c.name, 
         c.serial, 
         c.otherserial, 
+        c.comment, 
         m.name AS manufacturer, 
         mo.name AS model,
         l.completename AS location,
@@ -391,6 +398,7 @@ async function getComputers(search = '') {
         os: row.os || 'ไม่ระบุ (N/A)',
         lan_mac: row.lan_mac || 'ไม่ระบุ (N/A)',
         wifi_mac: row.wifi_mac || 'ไม่ระบุ (N/A)',
+        comment: row.comment || '',
         purchase_date: 'N/A',
         warranty: 'N/A'
       };
