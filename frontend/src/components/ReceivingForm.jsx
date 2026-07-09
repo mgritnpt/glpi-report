@@ -20,6 +20,11 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
   const [documentNo, setDocumentNo] = useState('');
   const [remarks, setRemarks] = useState('อุปกรณ์ผ่านการทดสอบสภาพการทำงานปกติ 100%');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterLocation, setFilterLocation] = useState('all');
+  const [filterEntity, setFilterEntity] = useState('all');
+
+  const locationsList = [...new Set(computers.map(c => c.location).filter(Boolean))].sort();
+  const entitiesList = [...new Set(computers.map(c => c.entity_name).filter(Boolean))].sort();
 
   // Entity selection
   const entityOptions = entities.length > 0 ? entities : [
@@ -110,11 +115,16 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
     );
   };
 
-  // Filter computers based on search query
+  // Filter computers based on search query, location, and entity
   const filteredComputers = computers.filter(c => {
     const term = searchQuery.toLowerCase();
     const displayName = `${c.name} - ${c.manufacturer} ${c.model} [รหัสทรัพย์สิน: ${c.otherserial || c.serial}]`.toLowerCase();
-    return displayName.includes(term);
+    const searchMatch = displayName.includes(term) || (c.username && c.username.toLowerCase().includes(term));
+    
+    const locationMatch = filterLocation === 'all' || c.location === filterLocation;
+    const entityMatch = filterEntity === 'all' || c.entity_name === filterEntity || c.entities_id.toString() === filterEntity;
+    
+    return searchMatch && locationMatch && entityMatch;
   });
 
   const handleSelectAll = () => {
@@ -217,6 +227,36 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                   style={{ paddingLeft: '2rem', fontSize: '0.8rem' }}
                 />
                 <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              </div>
+
+              {/* Filters for Location and Entity */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <div>
+                  <select
+                    className="form-control"
+                    value={filterLocation}
+                    onChange={e => setFilterLocation(e.target.value)}
+                    style={{ fontSize: '0.75rem', padding: '0.35rem 0.5rem', height: 'auto' }}
+                  >
+                    <option value="all">📍 ทุกสถานที่</option>
+                    {locationsList.map(loc => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <select
+                    className="form-control"
+                    value={filterEntity}
+                    onChange={e => setFilterEntity(e.target.value)}
+                    style={{ fontSize: '0.75rem', padding: '0.35rem 0.5rem', height: 'auto' }}
+                  >
+                    <option value="all">🏢 ทุก Entity</option>
+                    {entitiesList.map(ent => (
+                      <option key={ent} value={ent}>{ent}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Checklist container */}
@@ -605,21 +645,21 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       <div className="signature-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '6px' }}>
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '10.5px', fontWeight: 700 }}>ลงชื่อผู้รับมอบ (Received By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
+                          <div style={{ width: '140px', borderBottom: '1px dotted #94a3b8', margin: '20px auto 4px auto' }}></div>
                           <span style={{ fontSize: '10px' }}>({docUser.name})</span>
                           <span style={{ fontSize: '9px', color: '#64748b', display: 'block' }}>พนักงานผู้รับมอบอุปกรณ์</span>
                         </div>
                         
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '10.5px', fontWeight: 700 }}>ลงชื่อผู้ส่งมอบ (Handed Over By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
+                          <div style={{ width: '140px', borderBottom: '1px dotted #94a3b8', margin: '20px auto 4px auto' }}></div>
                           <span style={{ fontSize: '10px' }}>(........................................................)</span>
                           <span style={{ fontSize: '9px', color: '#64748b', display: 'block' }}>เจ้าหน้าที่ฝ่าย IT Support</span>
                         </div>
 
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '10.5px', fontWeight: 700 }}>ลงชื่อพยาน (Witness/Manager)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
+                          <div style={{ width: '140px', borderBottom: '1px dotted #94a3b8', margin: '20px auto 4px auto' }}></div>
                           <span style={{ fontSize: '10px' }}>(........................................................)</span>
                           <span style={{ fontSize: '9px', color: '#64748b', display: 'block' }}>พยาน / หัวหน้างานต้นสังกัด</span>
                         </div>
@@ -698,21 +738,21 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       <div className="signature-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '4px' }}>
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '10.5px', fontWeight: 700 }}>ลงชื่อผู้ส่งคืน (Returned By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
+                          <div style={{ width: '140px', borderBottom: '1px dotted #94a3b8', margin: '20px auto 4px auto' }}></div>
                           <span style={{ fontSize: '10px' }}>({docUser.name})</span>
                           <span style={{ fontSize: '9px', color: '#64748b', display: 'block' }}>พนักงานผู้ส่งคืนอุปกรณ์</span>
                         </div>
                         
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '10.5px', fontWeight: 700 }}>ลงชื่อผู้รับคืน (Received Back By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
+                          <div style={{ width: '140px', borderBottom: '1px dotted #94a3b8', margin: '20px auto 4px auto' }}></div>
                           <span style={{ fontSize: '10px' }}>(........................................................)</span>
                           <span style={{ fontSize: '9px', color: '#64748b', display: 'block' }}>เจ้าหน้าที่ฝ่าย IT Support</span>
                         </div>
 
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '10.5px', fontWeight: 700 }}>ลงชื่อพยาน (Witness/Manager)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
+                          <div style={{ width: '140px', borderBottom: '1px dotted #94a3b8', margin: '20px auto 4px auto' }}></div>
                           <span style={{ fontSize: '10px' }}>(........................................................)</span>
                           <span style={{ fontSize: '9px', color: '#64748b', display: 'block' }}>พยาน / หัวหน้างานต้นสังกัด</span>
                         </div>
