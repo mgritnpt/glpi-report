@@ -469,90 +469,96 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* 1. Recipient Details Table */}
-                    <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>1. ข้อมูลผู้รับมอบ / ผู้ส่งคืน อุปกรณ์ (Equipment Recipient / Returner Detail)</div>
-                    <table style={{ width: '100%', marginBottom: '8px' }} className="doc-table">
-                      <tbody>
-                        <tr>
-                          <td style={{ width: '15%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อ-นามสกุล:</td>
-                          <td style={{ width: '35%' }}>{docUser.name}</td>
-                          <td style={{ width: '15%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ตำแหน่ง:</td>
-                          <td style={{ width: '35%' }}>{docUser.title || 'พนักงาน'}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>แผนก/ฝ่าย:</td>
-                          <td>{docUser.department}</td>
-                          <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>เบอร์ติดต่อ:</td>
-                          <td>{docUser.phone}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>อีเมล:</td>
-                          <td colSpan="3">{docUser.email}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div>
+                      <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>1. ข้อมูลผู้รับมอบ / ผู้ส่งคืน อุปกรณ์ (Equipment Recipient / Returner Detail)</div>
+                      <table style={{ width: '100%', marginBottom: '0px' }} className="doc-table">
+                        <tbody>
+                          <tr>
+                            <td style={{ width: '15%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อ-นามสกุล:</td>
+                            <td style={{ width: '35%' }}>{docUser.name}</td>
+                            <td style={{ width: '15%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ตำแหน่ง:</td>
+                            <td style={{ width: '35%' }}>{docUser.title || 'พนักงาน'}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>แผนก/ฝ่าย:</td>
+                            <td>{docUser.department}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>เบอร์ติดต่อ:</td>
+                            <td>{docUser.phone}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>อีเมล:</td>
+                            <td colSpan="3">{docUser.email}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
 
                     {/* 2. Computer Specifications Table */}
-                    <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>2. ข้อมูลเครื่องคอมพิวเตอร์หลัก (Computer Specifications)</div>
-                    <table style={{ width: '100%', marginBottom: '8px' }} className="doc-table">
-                      <tbody>
-                        <tr>
-                          <td style={{ width: '18%', fontWeight: 700, backgroundColor: '#f8fafc' }}>รหัสทรัพย์สิน (INV):</td>
-                          <td style={{ width: '32%' }}>{computer.otherserial || 'N/A'}</td>
-                          <td style={{ width: '18%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ซีเรียลนัมเบอร์ (S/N):</td>
-                          <td style={{ width: '32%' }}>{computer.serial || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ยี่ห้อ / รุ่น:</td>
-                          <td>{computer.manufacturer} {computer.model}</td>
-                          <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อเครื่อง (Hostname):</td>
-                          <td>{computer.name}</td>
-                        </tr>
-                        <tr>
-                          <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>รายละเอียดสเปก:</td>
-                          <td colSpan="3" style={{ fontSize: '10.5px' }}>
-                            <span><strong>OS:</strong> {computer.os || 'Windows 11 Pro'} | <strong>CPU:</strong> {computer.cpu || 'Intel Core i5'} | <strong>RAM:</strong> {computer.ram || '16 GB'} | <strong>Storage:</strong> {computer.storage || '512 GB SSD'}</span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div>
+                      <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>2. ข้อมูลเครื่องคอมพิวเตอร์หลัก (Computer Specifications)</div>
+                      <table style={{ width: '100%', marginBottom: '0px' }} className="doc-table">
+                        <tbody>
+                          <tr>
+                            <td style={{ width: '18%', fontWeight: 700, backgroundColor: '#f8fafc' }}>รหัสทรัพย์สิน (INV):</td>
+                            <td style={{ width: '32%' }}>{computer.otherserial || 'N/A'}</td>
+                            <td style={{ width: '18%', fontWeight: 700, backgroundColor: '#f8fafc' }}>ซีเรียลนัมเบอร์ (S/N):</td>
+                            <td style={{ width: '32%' }}>{computer.serial || 'N/A'}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ยี่ห้อ / รุ่น:</td>
+                            <td>{computer.manufacturer} {computer.model}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อเครื่อง (Hostname):</td>
+                            <td>{computer.name}</td>
+                          </tr>
+                          <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>รายละเอียดสเปก:</td>
+                            <td colSpan="3" style={{ fontSize: '10.5px' }}>
+                              <span><strong>OS:</strong> {computer.os || 'Windows 11 Pro'} | <strong>CPU:</strong> {computer.cpu || 'Intel Core i5'} | <strong>RAM:</strong> {computer.ram || '16 GB'} | <strong>Storage:</strong> {computer.storage || '512 GB SSD'}</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
 
                     {/* 3. Accessories Details Grid */}
-                    <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>3. อุปกรณ์เสริมพ่วงประกอบที่ส่งมอบ (Accessories Handed Over)</div>
-                    <div style={{ 
-                      display: 'grid', 
-                      gridTemplateColumns: '1fr 1fr', 
-                      gap: '4px 20px', 
-                      padding: '6px 10px', 
-                      border: '1px solid #cbd5e1', 
-                      borderRadius: '4px', 
-                      marginBottom: '8px', 
-                      fontSize: '10.5px', 
-                      backgroundColor: '#fafafa' 
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{accessories.mouse ? '☑' : '☐'}</span> เมาส์ ({accessories.mouse ? mouseType : 'Mouse'})
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{accessories.bag ? '☑' : '☐'}</span> กระเป๋าโน้ตบุ๊ก (Notebook Bag)
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{accessories.keyboard ? '☑' : '☐'}</span> คีย์บอร์ดภายนอก (Keyboard)
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{accessories.headset ? '☑' : '☐'}</span> หูฟังบริษัท (Headset)
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{accessories.charger ? '☑' : '☐'}</span> สายชาร์จ & อะแดปเตอร์ (Adapter)
-                      </div>
-                      {accessories.other ? (
+                    <div>
+                      <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>3. อุปกรณ์เสริมพ่วงประกอบที่ส่งมอบ (Accessories Handed Over)</div>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '1fr 1fr', 
+                        gap: '4px 20px', 
+                        padding: '6px 10px', 
+                        border: '1px solid #cbd5e1', 
+                        borderRadius: '4px', 
+                        marginBottom: '0px', 
+                        fontSize: '10.5px', 
+                        backgroundColor: '#fafafa' 
+                      }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span>☑</span> อุปกรณ์อื่นๆ: <span style={{ textDecoration: 'underline' }}>{accessories.other}</span>
+                          <span>{accessories.mouse ? '☑' : '☐'}</span> เมาส์ ({accessories.mouse ? mouseType : 'Mouse'})
                         </div>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8' }}>
-                          <span>☐</span> อุปกรณ์อื่นๆ: -
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{accessories.bag ? '☑' : '☐'}</span> กระเป๋าโน้ตบุ๊ก (Notebook Bag)
                         </div>
-                      )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{accessories.keyboard ? '☑' : '☐'}</span> คีย์บอร์ดภายนอก (Keyboard)
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{accessories.headset ? '☑' : '☐'}</span> หูฟังบริษัท (Headset)
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{accessories.charger ? '☑' : '☐'}</span> สายชาร์จ & อะแดปเตอร์ (Adapter)
+                        </div>
+                        {accessories.other ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>☑</span> อุปกรณ์อื่นๆ: <span style={{ textDecoration: 'underline' }}>{accessories.other}</span>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8' }}>
+                            <span>☐</span> อุปกรณ์อื่นๆ: -
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Part 1: Handover */}
@@ -581,21 +587,21 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '6px' }}>
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อผู้รับมอบ (Received By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '18px auto 3px auto' }}></div>
+                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
                           <span style={{ fontSize: '9px' }}>({docUser.name})</span>
                           <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>พนักงานผู้รับมอบอุปกรณ์</span>
                         </div>
                         
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อผู้ส่งมอบ (Handed Over By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '16px auto 3px auto' }}></div>
+                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
                           <span style={{ fontSize: '9px' }}>(........................................................)</span>
                           <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>เจ้าหน้าที่ฝ่าย IT Support</span>
                         </div>
 
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อพยาน (Witness/Manager)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '18px auto 3px auto' }}></div>
+                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
                           <span style={{ fontSize: '9px' }}>(........................................................)</span>
                           <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>พยาน / หัวหน้างานต้นสังกัด</span>
                         </div>
@@ -674,21 +680,21 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '4px' }}>
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อผู้ส่งคืน (Returned By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '18px auto 3px auto' }}></div>
+                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
                           <span style={{ fontSize: '9px' }}>({docUser.name})</span>
                           <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>พนักงานผู้ส่งคืนอุปกรณ์</span>
                         </div>
                         
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อผู้รับคืน (Received Back By)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '16px auto 3px auto' }}></div>
+                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
                           <span style={{ fontSize: '9px' }}>(........................................................)</span>
                           <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>เจ้าหน้าที่ฝ่าย IT Support</span>
                         </div>
 
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อพยาน (Witness/Manager)</span>
-                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '16px auto 3px auto' }}></div>
+                          <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
                           <span style={{ fontSize: '9px' }}>(........................................................)</span>
                           <span style={{ fontSize: '8px', color: '#64748b', display: 'block' }}>พยาน / หัวหน้างานต้นสังกัด</span>
                         </div>
@@ -697,7 +703,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
 
                     {/* Bottom Notice / Custom Footer */}
                     <div style={{ 
-                      marginTop: '10px', 
+                      marginTop: 'auto', 
                       borderTop: '1px solid #cbd5e1', 
                       paddingTop: '4px', 
                       display: 'flex',
