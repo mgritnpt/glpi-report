@@ -505,28 +505,34 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                             <td style={{ width: '32%' }}>{computer.serial || 'N/A'}</td>
                           </tr>
                           <tr>
-                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ยี่ห้อ / รุ่น:</td>
-                            <td>{computer.manufacturer} {computer.model}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ยี่ห้อ (Brand):</td>
+                            <td>{computer.manufacturer || 'N/A'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>รุ่น (Model):</td>
+                            <td>{computer.model || 'N/A'}</td>
+                          </tr>
+                          <tr>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ชื่อเครื่อง (Hostname):</td>
                             <td>{computer.name}</td>
-                          </tr>
-                          <tr>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ระบบปฏิบัติการ (OS):</td>
                             <td>{computer.os || 'Windows 11 Pro'}</td>
+                          </tr>
+                          <tr>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>หน่วยประมวลผล (CPU):</td>
                             <td>{computer.cpu || 'Intel Core i5'}</td>
-                          </tr>
-                          <tr>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>หน่วยความจำ (RAM):</td>
                             <td>{computer.ram || '16 GB'}</td>
-                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ฮาร์ดดิสก์ (Storage):</td>
-                            <td>{computer.storage || '512 GB SSD'}</td>
                           </tr>
                           <tr>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>ฮาร์ดดิสก์ (Storage):</td>
+                            <td>{computer.storage || '512 GB SSD'}</td>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>LAN MAC Address:</td>
                             <td>{computer.lan_mac || 'ไม่ระบุ (N/A)'}</td>
+                          </tr>
+                          <tr>
                             <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>WiFi MAC Address:</td>
                             <td>{computer.wifi_mac || 'ไม่ระบุ (N/A)'}</td>
+                            <td style={{ fontWeight: 700, backgroundColor: '#f8fafc' }}>สถานะ (State):</td>
+                            <td>{computer.state || 'ไม่ระบุสถานะ'}</td>
                           </tr>
                         </tbody>
                       </table>
