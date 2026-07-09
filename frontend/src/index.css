@@ -384,11 +384,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Margins for direct sections inside printable document to space them out evenly */
 .printable-document .doc-header-wrapper {
-  margin-bottom: 12px !important;
+  margin-bottom: 15px !important;
 }
 
 .printable-document .section-wrapper {
-  margin-bottom: 12px !important;
+  margin-bottom: 15px !important;
   page-break-inside: avoid !important;
 }
 
@@ -405,8 +405,8 @@ h1, h2, h3, h4, h5, h6 {
 .printable-document .doc-table th,
 .printable-document .doc-table td {
   border: 1px solid #cbd5e1;
-  padding: 3.5px 6px !important; /* Proper padding for cells */
-  font-size: 10px !important; /* Set table cell font-size to 10px */
+  padding: 4px 7px !important; /* Proper padding for cells */
+  font-size: 10.8px !important; /* Set table cell font-size to 10.8px */
   line-height: 1.25 !important;
   word-wrap: break-word !important;
   overflow: hidden !important;
@@ -419,9 +419,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Compact section titles */
 .printable-document .doc-section-title {
-  font-size: 10px !important; /* Set section title font-size to 10px */
+  font-size: 11px !important; /* Set section title font-size to 11px */
   margin-top: 0 !important;
-  margin-bottom: 3px !important;
+  margin-bottom: 4px !important;
   font-weight: 700 !important;
   page-break-inside: avoid !important;
 }
@@ -430,14 +430,14 @@ h1, h2, h3, h4, h5, h6 {
 .printable-document .accessories-grid {
   padding: 6px 10px !important;
   gap: 4px 20px !important;
-  font-size: 10px !important;
+  font-size: 10.8px !important;
   page-break-inside: avoid !important;
 }
 
 /* Compact Handover and Return wrappers */
 .printable-document .part-section {
   padding: 6px 10px !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 15px !important;
   page-break-inside: avoid !important;
 }
 
@@ -449,7 +449,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .printable-document li {
-  font-size: 8px !important; /* Set list item font-size to 8px */
+  font-size: 8.5px !important; /* Set list item font-size to 8.5px */
   line-height: 1.25 !important;
 }
 
@@ -469,12 +469,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .printable-document .signature-box span {
-  font-size: 9px !important; /* Set signature labels to 9px */
+  font-size: 9.5px !important; /* Set signature labels to 9.5px */
 }
 
 /* Dotted line margin for writing space */
 .printable-document .signature-box > div {
-  margin: 22px auto 4px auto !important; /* Lock print/screen signature spacing */
+  margin: 24px auto 4px auto !important; /* Lock print/screen signature spacing */
 }
 
 /* Footer layout - positioned absolutely at the bottom of A4 container */
