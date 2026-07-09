@@ -523,7 +523,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     {/* 3. Accessories Details Grid */}
                     <div>
                       <div className="doc-section-title" style={{ fontSize: '10.5px', marginBottom: '4px' }}>3. อุปกรณ์เสริมพ่วงประกอบที่ส่งมอบ (Accessories Handed Over)</div>
-                      <div style={{ 
+                      <div className="accessories-grid" style={{ 
                         display: 'grid', 
                         gridTemplateColumns: '1fr 1fr', 
                         gap: '4px 20px', 
@@ -562,7 +562,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* Part 1: Handover */}
-                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', marginBottom: '8px', backgroundColor: '#fdfdfd' }}>
+                    <div className="part-section" style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', marginBottom: '8px', backgroundColor: '#fdfdfd' }}>
                       <div style={{ fontWeight: 700, fontSize: '10.5px', color: 'var(--primary)', marginBottom: '3px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
                         📝 ส่วนที่ 1: บันทึกการส่งมอบและรับอุปกรณ์คอมพิวเตอร์ (IT Asset Handover Record)
                       </div>
@@ -584,7 +584,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       </div>
 
                       {/* 3 Signature Grid for Handover */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '6px' }}>
+                      <div className="signature-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '6px' }}>
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อผู้รับมอบ (Received By)</span>
                           <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
@@ -609,7 +609,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* Part 2: Return */}
-                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', backgroundColor: '#fdfdfd' }}>
+                    <div className="part-section" style={{ border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', backgroundColor: '#fdfdfd' }}>
                       <div style={{ fontWeight: 700, fontSize: '10.5px', color: 'var(--accent)', marginBottom: '3px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
                         🔄 ส่วนที่ 2: บันทึกการส่งคืนและรับคืนสินทรัพย์ (IT Asset Return Record)
                       </div>
@@ -677,7 +677,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                       </div>
 
                       {/* 3 Signature Grid for Return */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '4px' }}>
+                      <div className="signature-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', textAlign: 'center', marginTop: '4px' }}>
                         <div className="signature-box" style={{ border: '1px solid #f1f5f9', padding: '4px', borderRadius: '4px' }}>
                           <span style={{ fontSize: '9.5px', fontWeight: 700 }}>ลงชื่อผู้ส่งคืน (Returned By)</span>
                           <div style={{ width: '80%', borderBottom: '1px dotted #94a3b8', margin: '28px auto 4px auto' }}></div>
@@ -702,7 +702,7 @@ export default function ReceivingForm({ computers, users, entities = [] }) {
                     </div>
 
                     {/* Bottom Notice / Custom Footer */}
-                    <div style={{ 
+                    <div className="custom-print-footer" style={{ 
                       marginTop: 'auto', 
                       borderTop: '1px solid #cbd5e1', 
                       paddingTop: '4px', 

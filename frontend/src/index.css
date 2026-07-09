@@ -519,10 +519,10 @@ h1, h2, h3, h4, h5, h6 {
     gap: 0 !important;
   }
 
-  /* Reset outer preview styling and force full print height */
+  /* Reset outer preview styling and force natural block layout for printing */
   html, body, #root, .app-container, .main-content, .doc-preview-outer {
-    height: 100% !important;
-    min-height: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
     display: block !important;
@@ -531,70 +531,96 @@ h1, h2, h3, h4, h5, h6 {
     max-height: none !important;
     overflow: visible !important;
     box-shadow: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .printable-document {
+    display: block !important; /* Avoid buggy flexbox pagination in printing */
     box-shadow: none !important;
     margin: 0 auto !important;
-    padding: 6mm 10mm !important; /* Slightly tighter padding for printing to ensure 1 page limit */
+    padding: 6mm 10mm !important; /* Tight padding to ensure strict A4 1-page fit */
     width: 100% !important;
-    height: 100% !important; /* Force exact page height to fill A4 sheet perfectly */
-    max-height: 100% !important;
-    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: auto !important;
     page-break-inside: avoid !important;
     page-break-after: avoid !important;
     font-family: 'Sarabun', sans-serif !important;
-    font-size: 8.8px !important; /* Slightly smaller base font-size during printing to prevent spillover */
-    line-height: 1.3 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important; /* Distribute sections evenly to fill A4 page */
+    font-size: 8.8px !important; /* Tighter font size during print */
+    line-height: 1.25 !important;
+    color: #000000 !important;
   }
 
   /* Compact all tables in print */
   .printable-document .doc-table {
     margin-top: 0 !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 4px !important;
+    width: 100% !important;
   }
 
   .printable-document .doc-table td,
   .printable-document .doc-table th {
-    padding: 2.5px 5px !important; /* Tighter cell padding */
-    font-size: 8.8px !important;
+    padding: 2.5px 5px !important; /* Tighter padding for cells */
+    font-size: 8.5px !important;
   }
 
   /* Compact section titles */
   .printable-document .doc-section-title {
     font-size: 9px !important;
-    margin-top: 1px !important;
-    margin-bottom: 1px !important;
+    margin-top: 4px !important;
+    margin-bottom: 2px !important;
     font-weight: 700 !important;
+  }
+
+  /* Compact Accessories details grid */
+  .printable-document .accessories-grid {
+    margin-bottom: 4px !important;
+    padding: 4px 8px !important;
+    gap: 2px 15px !important;
+  }
+
+  /* Compact Handover and Return wrappers */
+  .printable-document .part-section {
+    padding: 4px 8px !important;
+    margin-bottom: 5px !important;
   }
 
   /* Compact lists (Terms & Conditions) */
   .printable-document ul,
   .printable-document ol {
     margin: 1px 0 0 0 !important;
-    padding-left: 10px !important;
+    padding-left: 12px !important;
   }
 
   .printable-document li {
-    font-size: 7.5px !important;
+    font-size: 7.2px !important;
     line-height: 1.15 !important;
   }
 
   /* Compact signature boxes */
+  .printable-document .signature-grid {
+    margin-top: 4px !important;
+    gap: 8px !important;
+  }
+
   .printable-document .signature-box {
-    padding: 1px !important;
+    padding: 2px !important;
   }
 
   .printable-document .signature-box span {
     font-size: 7.5px !important;
   }
 
-  /* Target the signature dotted line specifically to shrink print margin and prevent page break overflow */
+  /* Shrink signing space in print to guarantee fit */
   .printable-document .signature-box > div {
-    margin: 18px auto 3px auto !important;
+    margin: 14px auto 2px auto !important;
+  }
+
+  /* Compact footer */
+  .printable-document .custom-print-footer {
+    margin-top: 8px !important;
+    padding-top: 2px !important;
+    font-size: 7.5px !important;
   }
 
   /* Ensure page layout options and suppress default header/footers */
