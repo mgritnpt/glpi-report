@@ -372,7 +372,7 @@ async function getComputers(search = '') {
       params.push(searchParam, searchParam, searchParam, searchParam, searchParam);
     }
     
-    query += ` ORDER BY c.id DESC LIMIT 100`;
+    query += ` ORDER BY c.id DESC`;
     
     const [rows] = await pool.query(query, params);
     
@@ -664,7 +664,7 @@ async function getTickets(status = null, priority = null, search = '') {
       query += ' AND ' + conditions.join(' AND ');
     }
 
-    query += ' ORDER BY t.id DESC LIMIT 100';
+    query += ' ORDER BY t.id DESC';
 
     const [rows] = await pool.query(query, params);
 

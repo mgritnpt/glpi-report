@@ -15,9 +15,18 @@ export default function Dashboard({ computers, tickets, entities = [], setActive
 
   // Statistics Calculations
   const totalComputers = filteredComputers.length;
-  const activeComputers = filteredComputers.filter(c => c.state.includes('Active') || c.state.includes('ใช้งาน')).length;
-  const spareComputers = filteredComputers.filter(c => c.state.includes('Spare') || c.state.includes('สำรอง')).length;
-  const repairComputers = filteredComputers.filter(c => c.state.includes('Repair') || c.state.includes('ซ่อม')).length;
+  const activeComputers = filteredComputers.filter(c => {
+    const s = (c.state || '').toLowerCase();
+    return s.includes('active') || s.includes('ใช้งาน');
+  }).length;
+  const spareComputers = filteredComputers.filter(c => {
+    const s = (c.state || '').toLowerCase();
+    return s.includes('spare') || s.includes('สำรอง');
+  }).length;
+  const repairComputers = filteredComputers.filter(c => {
+    const s = (c.state || '').toLowerCase();
+    return s.includes('repair') || s.includes('ซ่อม');
+  }).length;
   
   const totalTickets = filteredTickets.length;
   const pendingTickets = filteredTickets.filter(t => t.status <= 4).length; // New, Processing, Pending, Planned
