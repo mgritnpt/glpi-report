@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, FileText, Wrench, Laptop, Sun, Moon, Database, ChevronRight, FileSpreadsheet, ClipboardList, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutGrid, FileText, Wrench, Laptop, Sun, Moon, Database, ChevronRight, FileSpreadsheet, ClipboardList, LogOut, ShieldCheck, Tag } from 'lucide-react';
 
 export default function Layout({ children, activeTab, setActiveTab, theme, toggleTheme, dbStatus, user, onLogout }) {
   const menuItems = [
@@ -9,6 +9,7 @@ export default function Layout({ children, activeTab, setActiveTab, theme, toggl
     { id: 'maintenance', label: 'รายงานแจ้งซ่อม', icon: Wrench, desc: 'รายละเอียดตั๋วซ่อม' },
     { id: 'sla', label: 'วิเคราะห์ SLA', icon: ShieldCheck, desc: 'วิเคราะห์ระยะเวลาปิดงาน' },
     { id: 'assets', label: 'รายงานทรัพย์สิน', icon: Laptop, desc: 'รายละเอียดสเปกอุปกรณ์' },
+    { id: 'label-printer', label: 'พิมพ์สติ๊กเกอร์ทรัพย์สิน', icon: Tag, desc: 'พิมพ์ Label ติดเครื่องคอมฯ' },
     { id: 'export', label: 'ส่งออกข้อมูลสินทรัพย์', icon: FileSpreadsheet, desc: 'ออกรายงาน Excel พรีเมียม' }
   ];
 
