@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, FileText, Wrench, Laptop, Sun, Moon, Database, ChevronRight, FileSpreadsheet, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutGrid, FileText, Wrench, Laptop, Sun, Moon, Database, ChevronRight, FileSpreadsheet, ClipboardList, LogOut, ShieldCheck } from 'lucide-react';
 
 export default function Layout({ children, activeTab, setActiveTab, theme, toggleTheme, dbStatus, user, onLogout }) {
   const menuItems = [
@@ -7,6 +7,7 @@ export default function Layout({ children, activeTab, setActiveTab, theme, toggl
     { id: 'receiving', label: 'ใบรับมอบคอมพิวเตอร์', icon: FileText, desc: 'แบบฟอร์มส่งมอบคอมฯ' },
     { id: 'maintenance-form', label: 'ใบส่งซ่อมบำรุงคอมพิวเตอร์', icon: ClipboardList, desc: 'แบบฟอร์มบันทึกส่งซ่อม' },
     { id: 'maintenance', label: 'รายงานแจ้งซ่อม', icon: Wrench, desc: 'รายละเอียดตั๋วซ่อม' },
+    { id: 'sla', label: 'วิเคราะห์ SLA', icon: ShieldCheck, desc: 'วิเคราะห์ระยะเวลาปิดงาน' },
     { id: 'assets', label: 'รายงานทรัพย์สิน', icon: Laptop, desc: 'รายละเอียดสเปกอุปกรณ์' },
     { id: 'export', label: 'ส่งออกข้อมูลสินทรัพย์', icon: FileSpreadsheet, desc: 'ออกรายงาน Excel พรีเมียม' }
   ];

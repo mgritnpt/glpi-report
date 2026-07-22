@@ -191,6 +191,7 @@ const mockTickets = [
     entity_name: 'BPK',
     type: 1, // Incident
     requester: 'สมชาย ใจดี',
+    department: 'BPK IT Operations',
     technician: 'ประสิทธิ์ งานดี (IT Support)',
     solution: null
   },
@@ -213,6 +214,7 @@ const mockTickets = [
     entity_name: 'BPK',
     type: 1, // Incident
     requester: 'กิตติศักดิ์ พรหมมา',
+    department: 'BPK Sales',
     technician: 'ยังไม่ได้มอบหมาย',
     solution: null
   },
@@ -235,6 +237,7 @@ const mockTickets = [
     entity_name: 'PPD',
     type: 1, // Incident
     requester: 'วิภา แก้วดี',
+    department: 'PPD Human Resources',
     technician: 'สมคิด ว่องไว (System Admin)',
     solution: 'ตรวจสอบพบว่ามีการตั้งค่า Proxy Server ค้างอยู่ในเว็บบราวเซอร์ ซึ่งเป็นค่าจากเน็ตเวิร์กเก่า ได้ทำการปิด Proxy Configuration และล้างแคช DNS (ipconfig /flushdns) จากนั้นทดสอบเปิดเว็บอีกครั้ง สามารถใช้งานได้ตามปกติแล้ว'
   }
@@ -691,21 +694,28 @@ async function getTickets(status = null, priority = null, search = '') {
       // Fetch requester and technician
       let requester = 'ไม่ทราบผู้แจ้ง';
       let technician = 'ยังไม่ได้มอบหมาย';
+      let requesterDept = 'ไม่ระบุแผนก';
 
       try {
         const usersQuery = `
-          SELECT u.realname, u.firstname, tu.type 
+          SELECT u.realname, u.firstname, tu.type,
+            (SELECT g.name FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id LIMIT 1) AS department
           FROM glpi_tickets_users tu
           JOIN glpi_users u ON tu.users_id = u.id
           WHERE tu.tickets_id = ?
         `;
         const [userRows] = await pool.query(usersQuery, [row.id]);
         
-        const requesters = userRows.filter(u => u.type === 1).map(u => [u.firstname, u.realname].filter(Boolean).join(' '));
-        const technicians = userRows.filter(u => u.type === 2).map(u => [u.firstname, u.realname].filter(Boolean).join(' '));
+        const requesters = userRows.filter(u => u.type === 1);
+        const technicians = userRows.filter(u => u.type === 2);
         
-        if (requesters.length > 0) requester = requesters.join(', ');
-        if (technicians.length > 0) technician = technicians.join(', ');
+        if (requesters.length > 0) {
+          requester = requesters.map(u => [u.firstname, u.realname].filter(Boolean).join(' ')).join(', ');
+          requesterDept = requesters[0].department || 'ไม่ระบุแผนก';
+        }
+        if (technicians.length > 0) {
+          technician = technicians.map(u => [u.firstname, u.realname].filter(Boolean).join(' ')).join(', ');
+        }
       } catch (e) {
         console.warn('Could not query users associated with ticket', e.message);
       }
@@ -727,6 +737,7 @@ async function getTickets(status = null, priority = null, search = '') {
         item_id: row.item_id || null,
         requester,
         technician,
+        department: requesterDept,
         solution: null, // Queried in ticket detail page
         entities_id: row.entities_id || 0,
         entity_name: row.entity_name || 'Root entity'

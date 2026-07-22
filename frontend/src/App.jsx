@@ -6,6 +6,7 @@ import MaintenanceForm from './components/MaintenanceForm';
 import MaintenanceReport from './components/MaintenanceReport';
 import AssetReport from './components/AssetReport';
 import AssetExport from './components/AssetExport';
+import SlaAnalysis from './components/SlaAnalysis';
 import { Loader2, AlertCircle, RefreshCw, User, KeyRound, ShieldAlert } from 'lucide-react';
 
 function LoginScreen({ onLoginSuccess, theme }) {
@@ -438,6 +439,12 @@ export default function App() {
 
       {activeTab === 'maintenance' && (
         <MaintenanceReport
+          tickets={tickets}
+        />
+      )}
+
+      {activeTab === 'sla' && (
+        <SlaAnalysis
           tickets={tickets}
         />
       )}
