@@ -526,10 +526,10 @@ export default function MaintenanceForm({ computers, users, entities = [] }) {
                 if (!docUser) {
                   docUser = {
                     name: computer.username || 'ไม่มีผู้ถือครอง (ส่วนกลาง)',
-                    title: 'พนักงาน',
+                    title: computer.user_title || 'พนักงาน',
                     department: computer.user_dept || 'สำนักงานใหญ่/ฝ่ายกลาง',
-                    phone: 'N/A',
-                    email: 'N/A'
+                    phone: computer.user_phone || 'N/A',
+                    email: computer.user_email || 'N/A'
                   };
                 }
 

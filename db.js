@@ -4,11 +4,11 @@ require('dotenv').config();
 
 // Configuration
 const dbConfig = {
-  host: process.env.DB_HOST || '192.168.1.100',
+  host: process.env.DB_HOST || '192.6.1.24',
   port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'glpiuser',
-  password: process.env.DB_PASSWORD || 'glpipassword',
-  database: process.env.DB_NAME || 'glpidb',
+  user: process.env.DB_USER || 'report_user',
+  password: process.env.DB_PASSWORD || 'npt@report',
+  database: process.env.DB_NAME || 'glpi',
   connectTimeout: 5000 // 5 seconds timeout
 };
 
@@ -336,6 +336,13 @@ async function getComputers(search = '') {
         )`
       : `NULL`;
 
+    const hasTitles = await checkTableExists('glpi_usertitles');
+    const hasCategories = await checkTableExists('glpi_usercategories');
+    const hasGroups = await checkTableExists('glpi_groups');
+
+    const catSub = hasCategories ? 'uc.name' : 'NULL';
+    const groupSub = hasGroups ? '(SELECT g.name FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id LIMIT 1)' : 'NULL';
+
     let query = `
       SELECT 
         c.id, 
@@ -350,6 +357,10 @@ async function getComputers(search = '') {
         u.realname AS username,
         u.firstname AS user_firstname,
         u.id AS user_id,
+        COALESCE(NULLIF(TRIM(u.mobile), ''), NULLIF(TRIM(u.phone), ''), 'N/A') AS user_phone,
+        (SELECT email FROM glpi_useremails WHERE users_id = u.id ORDER BY is_default DESC, id ASC LIMIT 1) AS user_email,
+        ${hasTitles ? 'ut.name' : 'NULL'} AS user_title,
+        COALESCE(${catSub}, ${groupSub}, 'สำนักงานใหญ่') AS user_dept,
         c.entities_id,
         e.name AS entity_name,
         ${osSub} AS os,
@@ -365,6 +376,8 @@ async function getComputers(search = '') {
       LEFT JOIN glpi_states s ON c.states_id = s.id
       LEFT JOIN glpi_users u ON c.users_id = u.id
       LEFT JOIN glpi_entities e ON c.entities_id = e.id
+      ${hasTitles ? 'LEFT JOIN glpi_usertitles ut ON u.usertitles_id = ut.id' : ''}
+      ${hasCategories ? 'LEFT JOIN glpi_usercategories uc ON u.usercategories_id = uc.id' : ''}
       WHERE c.is_deleted = 0
     `;
 
@@ -393,6 +406,10 @@ async function getComputers(search = '') {
         state: row.state || 'ไม่ระบุสถานะ',
         username: fullname || 'ไม่มีผู้ถือครอง',
         user_id: row.user_id || null,
+        user_phone: row.user_phone || 'N/A',
+        user_email: row.user_email || 'N/A',
+        user_title: row.user_title || 'พนักงาน',
+        user_dept: row.user_dept || 'สำนักงานใหญ่',
         entities_id: row.entities_id || 0,
         entity_name: row.entity_name || 'Root entity',
         cpu: row.cpu || 'ไม่ระบุ (N/A)',
@@ -424,7 +441,11 @@ async function getComputerById(id) {
   try {
     // 1. Get basic computer details with user joins
     const hasTitles = await checkTableExists('glpi_usertitles');
+    const hasCategories = await checkTableExists('glpi_usercategories');
     const hasGroups = await checkTableExists('glpi_groups');
+
+    const catSub = hasCategories ? 'uc.name' : 'NULL';
+    const groupSub = hasGroups ? '(SELECT g.name FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id LIMIT 1)' : 'NULL';
 
     const basicQuery = `
       SELECT 
@@ -438,10 +459,10 @@ async function getComputerById(id) {
         s.name AS state,
         CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.realname, '')) AS username,
         u.id AS user_id,
-        COALESCE(NULLIF(u.mobile, ''), NULLIF(u.phone, ''), 'N/A') AS user_phone,
-        ue.email AS user_email,
+        COALESCE(NULLIF(TRIM(u.mobile), ''), NULLIF(TRIM(u.phone), ''), 'N/A') AS user_phone,
+        (SELECT email FROM glpi_useremails WHERE users_id = u.id ORDER BY is_default DESC, id ASC LIMIT 1) AS user_email,
         ${hasTitles ? 'ut.name' : 'NULL'} AS user_title,
-        ${hasGroups ? '(SELECT g.name FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id LIMIT 1)' : 'NULL'} AS user_dept,
+        COALESCE(${catSub}, ${groupSub}, 'สำนักงานใหญ่') AS user_dept,
         c.comment,
         c.date_creation,
         c.entities_id,
@@ -452,9 +473,9 @@ async function getComputerById(id) {
       LEFT JOIN glpi_locations l ON c.locations_id = l.id
       LEFT JOIN glpi_states s ON c.states_id = s.id
       LEFT JOIN glpi_users u ON c.users_id = u.id
-      LEFT JOIN glpi_useremails ue ON u.id = ue.users_id AND ue.is_default = 1
       LEFT JOIN glpi_entities e ON c.entities_id = e.id
       ${hasTitles ? 'LEFT JOIN glpi_usertitles ut ON u.usertitles_id = ut.id' : ''}
+      ${hasCategories ? 'LEFT JOIN glpi_usercategories uc ON u.usercategories_id = uc.id' : ''}
       WHERE c.id = ? AND c.is_deleted = 0
     `;
     const [basicRows] = await pool.query(basicQuery, [numericId]);
@@ -797,21 +818,25 @@ async function getUsers() {
 
   try {
     const hasTitles = await checkTableExists('glpi_usertitles');
+    const hasCategories = await checkTableExists('glpi_usercategories');
     const hasGroups = await checkTableExists('glpi_groups');
+
+    const catSub = hasCategories ? 'uc.name' : 'NULL';
+    const groupSub = hasGroups ? '(SELECT g.name FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id LIMIT 1)' : 'NULL';
 
     const query = `
       SELECT 
         u.id, 
         u.realname, 
         u.firstname, 
-        COALESCE(NULLIF(u.mobile, ''), NULLIF(u.phone, ''), 'N/A') AS phone, 
-        ue.email, 
+        COALESCE(NULLIF(TRIM(u.mobile), ''), NULLIF(TRIM(u.phone), ''), 'N/A') AS phone, 
+        (SELECT email FROM glpi_useremails WHERE users_id = u.id ORDER BY is_default DESC, id ASC LIMIT 1) AS email, 
         u.name AS username,
         ${hasTitles ? 'ut.name' : 'NULL'} AS title,
-        ${hasGroups ? '(SELECT g.name FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id LIMIT 1)' : 'NULL'} AS department
+        COALESCE(${catSub}, ${groupSub}, 'สำนักงานใหญ่') AS department
       FROM glpi_users u
-      LEFT JOIN glpi_useremails ue ON u.id = ue.users_id AND ue.is_default = 1
       ${hasTitles ? 'LEFT JOIN glpi_usertitles ut ON u.usertitles_id = ut.id' : ''}
+      ${hasCategories ? 'LEFT JOIN glpi_usercategories uc ON u.usercategories_id = uc.id' : ''}
       WHERE u.is_deleted = 0 AND u.is_active = 1
       ORDER BY u.realname ASC, u.firstname ASC
       LIMIT 200
@@ -894,6 +919,7 @@ async function getRichAssets() {
     const hasInfo = await checkTableExists('glpi_infocoms');
     const hasSuppliers = await checkTableExists('glpi_suppliers');
     const hasTitles = await checkTableExists('glpi_usertitles');
+    const hasCategories = await checkTableExists('glpi_usercategories');
     const hasGroups = await checkTableExists('glpi_groups');
 
     // 2. Build subqueries dynamically
@@ -916,9 +942,10 @@ async function getRichAssets() {
       storageSub = `(SELECT CONCAT(ROUND(SUM(idh.capacity)/1024), ' GB') FROM glpi_items_deviceharddrives idh WHERE idh.items_id = c.id AND idh.itemtype = 'Computer')`;
     }
 
-    const deptSub = hasGroups
-      ? `(SELECT GROUP_CONCAT(g.name SEPARATOR ', ') FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id)`
-      : `NULL`;
+    const catSub = hasCategories ? 'uc.name' : 'NULL';
+    const groupSub = hasGroups ? '(SELECT GROUP_CONCAT(g.name SEPARATOR \', \') FROM glpi_groups_users gu JOIN glpi_groups g ON gu.groups_id = g.id WHERE gu.users_id = u.id)' : 'NULL';
+
+    const deptSub = `COALESCE(${catSub}, ${groupSub})`;
 
     // 3. Build main query
     let selectFields = `
@@ -931,8 +958,8 @@ async function getRichAssets() {
       l.completename AS location,
       s.name AS state,
       CONCAT(COALESCE(u.firstname, ''), ' ', COALESCE(u.realname, '')) AS username,
-      u.phone AS user_phone,
-      ue.email AS user_email,
+      COALESCE(NULLIF(TRIM(u.mobile), ''), NULLIF(TRIM(u.phone), ''), 'N/A') AS user_phone,
+      (SELECT email FROM glpi_useremails WHERE users_id = u.id ORDER BY is_default DESC, id ASC LIMIT 1) AS user_email,
       ${hasTitles ? 'ut.name' : 'NULL'} AS user_title,
       ${deptSub} AS user_dept,
       ${osSub} AS os,
@@ -948,11 +975,13 @@ async function getRichAssets() {
       LEFT JOIN glpi_locations l ON c.locations_id = l.id
       LEFT JOIN glpi_states s ON c.states_id = s.id
       LEFT JOIN glpi_users u ON c.users_id = u.id
-      LEFT JOIN glpi_useremails ue ON u.id = ue.users_id AND ue.is_default = 1
     `;
 
     if (hasTitles) {
       joinTables += ` LEFT JOIN glpi_usertitles ut ON u.usertitles_id = ut.id`;
+    }
+    if (hasCategories) {
+      joinTables += ` LEFT JOIN glpi_usercategories uc ON u.usercategories_id = uc.id`;
     }
 
     // Dynamic joins for management (infocomms and suppliers)
