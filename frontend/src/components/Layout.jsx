@@ -102,8 +102,14 @@ export default function Layout({ children, activeTab, setActiveTab, theme, toggl
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
             <p><strong>โหมด:</strong> {dbStatus?.mode || 'กำลังเชื่อมต่อ...'}</p>
-            <p><strong>Host:</strong> {dbStatus?.host || '-'}</p>
+            <p><strong>Host:</strong> {dbStatus?.host || '-'}:{dbStatus?.port || 3306}</p>
+            <p><strong>User:</strong> {dbStatus?.user || '-'}</p>
             {dbStatus?.connected && <p><strong>DB:</strong> {dbStatus?.database}</p>}
+            {dbStatus?.error && (
+              <p style={{ color: '#ef4444', fontSize: '0.7rem', marginTop: '4px', wordBreak: 'break-word' }}>
+                <strong>Error:</strong> {dbStatus.error}
+              </p>
+            )}
           </div>
           <span style={{
             fontSize: '0.65rem',

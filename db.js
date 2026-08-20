@@ -2,15 +2,43 @@ const mysql = require('mysql2/promise');
 const ldap = require('ldapjs');
 require('dotenv').config();
 
-// Configuration
-const dbConfig = {
-  host: process.env.DB_HOST || '192.6.1.24',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'report_user',
-  password: process.env.DB_PASSWORD || 'npt@report',
-  database: process.env.DB_NAME || 'glpi',
-  connectTimeout: 5000 // 5 seconds timeout
+// Helper to check flexible env var names
+const getEnv = (keys, fallback) => {
+  for (const key of keys) {
+    if (process.env[key] !== undefined && process.env[key] !== '') {
+      return process.env[key];
+    }
+  }
+  return fallback;
 };
+
+// Configuration with flexible Environment Variable resolution
+const dbConfig = {
+  host: getEnv(['DB_HOST', 'MYSQL_HOST', 'MARIADB_HOST', 'GLPI_DB_HOST', 'DATABASE_HOST'], '192.6.1.24'),
+  port: parseInt(getEnv(['DB_PORT', 'MYSQL_PORT', 'MARIADB_PORT', 'GLPI_DB_PORT', 'PORT_DB'], '3306')),
+  user: getEnv(['DB_USER', 'DB_USERNAME', 'MYSQL_USER', 'MYSQL_USERNAME', 'GLPI_DB_USER'], 'report_user'),
+  password: getEnv(['DB_PASSWORD', 'DB_PASS', 'MYSQL_PASSWORD', 'MYSQL_PASS', 'GLPI_DB_PASSWORD'], 'npt@report'),
+  database: getEnv(['DB_NAME', 'DB_DATABASE', 'MYSQL_DATABASE', 'GLPI_DB_NAME'], 'glpi'),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  connectTimeout: 10000 // 10 seconds
+};
+
+// Parse DATABASE_URL / MYSQL_URL if set in environment
+const dbUrl = getEnv(['DATABASE_URL', 'MYSQL_URL', 'GLPI_DB_URL'], '');
+if (dbUrl) {
+  try {
+    const parsed = new URL(dbUrl);
+    if (parsed.hostname) dbConfig.host = parsed.hostname;
+    if (parsed.port) dbConfig.port = parseInt(parsed.port);
+    if (parsed.username) dbConfig.user = decodeURIComponent(parsed.username);
+    if (parsed.password) dbConfig.password = decodeURIComponent(parsed.password);
+    if (parsed.pathname) dbConfig.database = parsed.pathname.replace(/^\//, '');
+  } catch (e) {
+    console.warn('[GLPI DB] Could not parse connection URL:', e.message);
+  }
+}
 
 let pool = null;
 let useMockData = false;
@@ -243,11 +271,13 @@ const mockTickets = [
   }
 ];
 
+let lastConnectionError = null;
+
 // Initialize Database Connection Pool
 async function initializeDB() {
   if (pool) return pool;
 
-  console.log(`[GLPI DB] Attempting to connect to MariaDB at ${dbConfig.host}:${dbConfig.port}...`);
+  console.log(`[GLPI DB] Attempting to connect to MariaDB at ${dbConfig.host}:${dbConfig.port} (user: ${dbConfig.user}, db: ${dbConfig.database})...`);
   try {
     pool = mysql.createPool(dbConfig);
     
@@ -256,8 +286,10 @@ async function initializeDB() {
     console.log(`[GLPI DB] Successfully connected to MariaDB: ${dbConfig.database}`);
     connection.release();
     useMockData = false;
+    lastConnectionError = null;
     return pool;
   } catch (error) {
+    lastConnectionError = error.message;
     console.error(`[GLPI DB] Connection failed: ${error.message}`);
     console.log(`[GLPI DB] >>> FALLBACK: Running in Mock Data mode for demonstration <<<`);
     useMockData = true;
@@ -273,8 +305,10 @@ async function getStatus() {
     connected: !useMockData,
     mode: useMockData ? 'Mock Mode (Demo)' : 'MariaDB Active (Real GLPI)',
     host: dbConfig.host,
+    port: dbConfig.port,
     database: dbConfig.database,
-    user: dbConfig.user
+    user: dbConfig.user,
+    error: lastConnectionError
   };
 }
 
