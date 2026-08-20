@@ -14,10 +14,10 @@ const getEnv = (keys, fallback) => {
 
 // Configuration with flexible Environment Variable resolution
 const dbConfig = {
-  host: getEnv(['DB_HOST', 'MYSQL_HOST', 'MARIADB_HOST', 'GLPI_DB_HOST', 'DATABASE_HOST'], '192.6.1.24'),
+  host: getEnv(['DB_HOST', 'MYSQL_HOST', 'MARIADB_HOST', 'GLPI_DB_HOST', 'DATABASE_HOST'], 'glpi-prd-db'),
   port: parseInt(getEnv(['DB_PORT', 'MYSQL_PORT', 'MARIADB_PORT', 'GLPI_DB_PORT', 'PORT_DB'], '3306')),
-  user: getEnv(['DB_USER', 'DB_USERNAME', 'MYSQL_USER', 'MYSQL_USERNAME', 'GLPI_DB_USER'], 'report_user'),
-  password: getEnv(['DB_PASSWORD', 'DB_PASS', 'MYSQL_PASSWORD', 'MYSQL_PASS', 'GLPI_DB_PASSWORD'], 'npt@report'),
+  user: getEnv(['DB_USER', 'DB_USERNAME', 'MYSQL_USER', 'MYSQL_USERNAME', 'GLPI_DB_USER'], 'glpi'),
+  password: getEnv(['DB_PASSWORD', 'DB_PASS', 'MYSQL_PASSWORD', 'MYSQL_PASS', 'GLPI_DB_PASSWORD'], '*Adm@npt2026Prd'),
   database: getEnv(['DB_NAME', 'DB_DATABASE', 'MYSQL_DATABASE', 'GLPI_DB_NAME'], 'glpi'),
   waitForConnections: true,
   connectionLimit: 10,
